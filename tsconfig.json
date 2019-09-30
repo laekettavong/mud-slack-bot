@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "target": "ES2015",
+        "module": "commonjs",
+        "lib": [
+            "es7"
+        ],
+        "noImplicitAny": true,
+        "esModuleInterop": true
+    },
+    "include": [
+        "src/**/*", "v2/ramda.ts"
+    ]
+}
