@@ -23,6 +23,10 @@ export class SlackSubscriber implements Subscriber {
             // Slack bot endpoint verification, just send back 'challenge token
             this.handleChallenge(requestCtx);
         } else {
+            console.log("HERE1")
+            if(requestCtx.type === RequestType.Chat){
+              console.log("HERE2", requestCtx)
+            }
             this.handleInteractiveComponent(requestCtx);
         }
     }

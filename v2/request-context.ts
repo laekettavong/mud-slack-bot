@@ -30,16 +30,14 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
 
     // send back Slack 'challenge' token for endpoint verification
     if (challenge) {
-
       Object.assign(requestCtx, 
         {
             type: RequestType.Verify,
             challenge
         });
-        console.log("\nXXX", requestCtx)
-        //R.merge({ 'name': 'fred', 'age': 10 })({ 'age': 40 })
     }
     else if (event) {
+      console.log("\nXXX1", event)
       const { user, channel, text, event_ts, team, client_msg_id } = event;
         // respond only to message from user
       if (client_msg_id) {
@@ -66,11 +64,13 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
       }
     }
     else if (!event && payload) { // get user response from IC
+    console.log("\nXXX2", payload)
       const { actions, channel, team, user, response_url } = JSON.parse(payload);
       const { name, value, text, action_ts } = actions[0];
 
       Object.assign(requestCtx,
         {
+          type: RequestType.Chat,
           user,
           channel,
           team,
