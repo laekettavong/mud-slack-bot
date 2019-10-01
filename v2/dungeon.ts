@@ -36,3 +36,15 @@ export const getRoomDirections = (room: DungeonRoom): any => {
 export const getRoomItemByName = (items: Array<RoomItem>, item: String): RoomItem => {
     return R.filter(R.where({ itemName: R.equals(item) }))(items)[0];
 }
+
+
+const getRoomItems = (roomName: string) => R.filter(R.propEq('roomName', roomName))(dungeon.rooms)[0].items
+
+const getItem = (itemName: string) => R.filter(R.propEq('itemName', 'bez'))(roomItems)[0];
+
+const removeRoomItem = (roomName: string, itemName: string) => {
+    const roomItems = getRoomItems(roomName);
+    for (let idx in roomItems) {
+        if (roomItems[idx].itemName === itemName) roomItems[idx] = null;
+    }
+}

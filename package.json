@@ -6,7 +6,7 @@
   "scripts": {
     "start-devxx": "nodemon ./src/app.js",
     "start": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./src/app.ts",
-    "start-dev": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./v2/ramda.ts"
+    "start-dev": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./v2/ramda2.ts"
   },
   "keywords": [],
   "author": "",

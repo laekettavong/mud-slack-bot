@@ -163,12 +163,27 @@ export interface Subscribable {
     notify(action: RequestContext): void;
 }
 
+export type Player = {
+    id: string;
+    gold: number;
+    startRoom: string;
+    currentRoom: string;
+    inventory: Array<string>
+}
+
 export type Dungeon = {
+    // dungeonName: string;
+    // dungeonDesc: string;
+    // dungeonImg: string;
+    // helpText: string;
+    // rooms: Array<DungeonRoom>
+
     dungeonName: string;
     dungeonDesc: string;
-    dungeonImg: string;
     helpText: string;
-    rooms: Array<DungeonRoom>
+    dungeonImg: string;
+    rooms: Array<any>;
+    players: Array<Player>;  //Array<Player>;
 }
 
 export type DungeonRoomMetadata = {
@@ -206,9 +221,20 @@ export type RoomItem = {
     itemProperty: string;
 }
 
-export type Player = {
-    userId: string;
-    room: string;
-    gold: number;
-    items: Array<RoomItem>;
-}
+// export type Player = {
+//     userId: string;
+//     room: string;
+//     gold: number;
+//     items: Array<RoomItem>;
+// }
+
+// type Dungeon = {
+//     dungeonName: string;
+//     dungeonDesc: string;
+//     helpText: string;
+//     dungeonImg: string;
+//     rooms: Array<any>;
+//     players: Array<any>;
+// }
+
+

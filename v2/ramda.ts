@@ -304,7 +304,7 @@ R.isNil()
 
 
 
-var sampleTitlesXX = {
+const dung = {
     "dungeonName": "Tomb of the Forsaken Goblin",
     "dungeonDesc": "Find your way through catacombs below the ancient city of Glarven, the final resting place of the forsaken goblins.",
     "helpText": "Navigate through the catacombs with cardinal directions, collecting ancient treasures along the way.  Commands are go [direction] or get [item].  The treasures you find will be worth gold.  Collect 100 gold and find the exit to escape.",
@@ -419,5 +419,13 @@ const textIn = (language: string) =>
 // // adding new entries
 // console.log("\nXXX5", L.set(textIn('la'), 'Laotian', sampleTitles))
 console.log("\nXXX6", sampleTitles)
-L.set(textIn('sv'), undefined, sampleTitles)
-console.log("\nXXX7", sampleTitles)
+// L.set(textIn('sv'), undefined, sampleTitles)
+// console.log("\nXXX7", sampleTitles)
+
+
+// R.find(R.propEq('rooms', 2))(dungeon)
+// L.find(R.whereEq({ rooms }))(dungeon)
+
+const roomsLens = R.lensProp('rooms')
+const itemsLen = R.lensProp('items:')
+console.log(R.view(roomsLens, dungeon))
