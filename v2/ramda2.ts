@@ -75,6 +75,18 @@ let dungeon2 = {
                     "itemProperty": ""
                 }
             ]
+        },
+        {
+            "roomName": "The Goblin Cloak Room",
+            "roomDesc": "You enter a small room lined on two sides with open closets full of empty hangers.  There is a drab brown cloak hanging all alone on a hanger in the middle of one closet.",
+            "roomImg": "https://cdn.conceptartempire.com/images/08/2592/04-dungeon-scroller-art.jpg",
+            "north": "",
+            "south": "",
+            "east": "The Tomb of the Unknown Goblin",
+            "west": "The Entrance Hall",
+            "up": "",
+            "down": "",
+            "items": []
         }
     ],
     players: [{}]
@@ -127,7 +139,7 @@ let dungeon: Dungeon = {
                 {
                     "itemName": "The Tome Of Lowrasil",
                     "itemDesc": "A giant book written in an unfamiliar language.",
-                    "itemValue": "10",
+                    "itemValue": "100",
                     "itemProperty": ""
                 }
             ]
@@ -153,7 +165,7 @@ const cLens = R.lensProp('C')
 const roomItems: Array<RoomItem> = R.filter(R.propEq('roomName', 'The Entrance Hall'))(dungeon.rooms)[0].items;
 const getRoomItems = (dungeon: Dungeon, roomName: string) => R.filter(R.propEq('roomName', roomName))(dungeon.rooms)[0].items
 const getItem = (roomItems: Array<RoomItem>, itmName: string): RoomItem => JSON.parse(JSON.stringify(R.filter(R.propEq('itemName', itmName))(roomItems)[0]));
-
+//const getIndex = ()
 
 // const rmItems = getRoomItems(dungeon, 'The Tomb of the Unknown Goblin')
 // const itm = getItem(rmItems, 'The Gem of Sorrows')
@@ -162,9 +174,14 @@ const getItem = (roomItems: Array<RoomItem>, itmName: string): RoomItem => JSON.
 
 
 const removeRoomItem = (dungeon: Dungeon, roomName: string, itemName: string): void => {
-    const roomItems = getRoomItems(dungeon, roomName);
-    for (let indx in roomItems) {
-        if (roomItems[indx].itemName === itemName) roomItems[indx] = null;
+    let roomItems = getRoomItems(dungeon, roomName);
+    for (let item of roomItems) {
+        if (item.itemName === itemName)  {
+          roomItems = R.reject(R.propEq('itemName', itemName), roomItems);
+          const indx = R.findIndex(R.propEq('roomName', roomName))(dungeon.rooms);
+          dungeon.rooms[indx].items = roomItems;
+          break;
+        }
     }
 }
 
@@ -201,13 +218,36 @@ const setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string,
 const pickupItem = (dungeon: Dungeon, playerId: string, roomName: string, itmName: string) => {
     const roomItems = getRoomItems(dungeon, roomName);
     const { itemName, itemValue } = getItem(roomItems, itmName);
-    console.log("\nHERE", itemName, itemValue);
+    //console.log("\nHERE", itemName, itemValue);
     setPlayerState(dungeon, roomName, playerId, itemName, +itemValue);
+    removeRoomItem(dungeon, roomName, itemName);
 
 }
 
-pickupItem(dungeon, '123', 'The Tomb of the Unknown Goblin', 'The Gem of Sorrows');
-console.log("\n\n dungeon", JSON.stringify(dungeon))
+pickupItem(dungeon, '100', 'The Tomb of the Unknown Goblin', 'The Gem of Sorrows');
+pickupItem(dungeon, '101', 'The Entrance Hall', 'The Tome Of Lowrasil');
+//console.log("\n\n dungeon", JSON.stringify(dungeon))
+
+
+
+//R.find(R.propEq('rooms', 2))(dungeon)
+
+
+type Foo = {
+  itemName: string
+}
+let myArr: Array<Foo> = [{itemName: 'foo'}, {itemName: 'bar'}, {itemName: 'fix'}]
+// console.log(myArr)
+// myArr = R.reject(R.propEq('itemName', 'foo'), myArr)
+// console.log(myArr)
+
+
+// const isItem = item:Foo => item.itemName === 'bar';
+// R.filter(isItem)([myArr) // [2, 4]
+
+// console.log(R.reject(isItem)(myArr))
+
+
 
 
 // console.log(JSON.stringify(dungeon))
@@ -219,7 +259,10 @@ console.log("\n\n dungeon", JSON.stringify(dungeon))
 
 
 //console.log('\n\n', getRoomItems("The Tomb of the Unknown Goblin"));
-
+    // for (let indx in roomItems) {
+    //     if (roomItems[indx].itemName === itemName) roomItems[indx] = null;
+    // }
+    // console.log("XXINDEX: ", R.findIndex(R.propEq('roomName', roomName))(dungeon.rooms));
 
 
 const item = R.filter(R.propEq('itemName', 'bez'))(roomItems)[0];
@@ -233,9 +276,17 @@ roomItems.push({ itemName: 'lae', itemValue: "60", itemDesc: "123", itemProperty
 
 //console.log(R.filter(R.propEq('name', 'Two'))(obj.rooms.items));
 
-
+  // console.log("HERE1", JSON.stringify(roomItems));
+  //     for (let indx in roomItems) {
+  //       if (roomItems[indx].itemName === itemName) {
+  //         roomItems = R.take(+indx)(roomItems)
+  //         console.log("\HERE3", JSON.stringify(dungeon));
+  //         break;
+  //       }
+  //   }
 
 /*
+https://www.tutorialdocs.com/article/ramda-functions.html
 https://gist.github.com/cezarneaga/e7377357d62a2b2909685c1fb94125bb
 
 State Utility functions

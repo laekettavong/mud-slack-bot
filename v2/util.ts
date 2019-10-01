@@ -1,14 +1,6 @@
 import * as R from 'ramda';
 
 import {
-    // Decorator,
-    // ActionType,
-    // NavigationAction,
-    // DecorateMetadata,
-    // PlainResponseBody,
-    // Room,
-    // RequestContext,
-    // RequestType,
     DungeonRoom,
     DungeonRoomMetadata,
     DungeonRoomState,
@@ -85,8 +77,8 @@ export class StateUtil {
     }
 
     public static pickupItem = (dungeon: Dungeon, playerId: string, roomName: string, itmName: string) => {
-      const roomItems = getRoomItems(dungeon, roomName);
-      const { itemName, itemValue } = getItem(roomItems, itmName);
+      const roomItems = StateUtil.getRoomItems(dungeon, roomName);
+      const { itemName, itemValue } = StateUtil.getItem(roomItems, itmName);
       StateUtil.setPlayerState(dungeon, roomName, playerId, itemName, +itemValue);
       StateUtil.removeRoomItem(dungeon, roomName, itemName);
     }

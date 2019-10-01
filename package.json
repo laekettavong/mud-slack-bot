@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start-devxx": "nodemon ./src/app.js",
+    "start-devxx": "nodemon ./src/app.ts",
+    "start-v2": "nodemon --watch 'v2/**/*' -e ts --exec ts-node ./v2/app.ts",
     "start": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./src/app.ts",
     "start-dev": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./v2/ramda2.ts"
   },
