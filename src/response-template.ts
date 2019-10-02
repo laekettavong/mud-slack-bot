@@ -113,6 +113,8 @@ const navigation_treasure = {
     }]
 };
 
+
+
 const main_image = {
     channel: "UFGEC4XNX", // slack user ID for direct message
     as_user: true, // "mudbot", // name of bot
@@ -160,6 +162,9 @@ const main_image = {
         }]
     }]
 };
+
+
+
 
 const inventory = {
     channel: "UFGEC4XNX", // slack user ID for direct message

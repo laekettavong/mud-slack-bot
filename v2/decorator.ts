@@ -10,14 +10,13 @@ import {
 } from './types'
 
 export class ComponentDecorator {
-    public static decorate({ commonResponse, requestCtx }: any) {
+    public static decorate({ response, requestCtx }: any) {
         switch (requestCtx.type) {
+            case RequestType.Play:
             case RequestType.Start:
-                return this.decorateStart({ commonResponse, requestCtx });
-                break;
+                return this.decoratePlay({ response, requestCtx });
             case RequestType.Move:
-                return this.decorateMove({ commonResponse, requestCtx });
-                break;
+                return this.decorateMove({ response, requestCtx });
             case RequestType.Pickup:
                 break;
             case RequestType.Resume:
@@ -27,15 +26,24 @@ export class ComponentDecorator {
             case RequestType.Drop:
                 break;
             default:
-                break;
+                // chat
+                return this.decorateChat({ response, requestCtx });
         }
     }
 
-    private static decorateStart = ({ response, requestCtx }: any): any => {
+    private static decorateChat = ({ response, requestCtx }: any): any => {
+        // TODO: add text parser and response accordingly
+        const playMsg: string = "Not in the mood to chat. Would you like to play a game instead? Type 'play game' to begin.";
+        Object.assign(response, { text: playMsg });
+        return response;
+    }
+
+    private static decoratePlay = ({ response, requestCtx }: any): any => {
         const { dungeon } = requestCtx;
-        response = Object.assign({
-            text: "START decorator dungeon description here???", //dungeon.dungeonName
-        }, response);
+        Object.assign(response,
+            {
+                text: "START decorator dungeon description here???", //dungeon.dungeonName
+            });
 
         // add description/image
         const blocks: Array<any> = [
@@ -64,7 +72,7 @@ export class ComponentDecorator {
                 }
             }
         ];
-        response = Object.assign(blocks, response);
+        Object.assign(response, blocks);
 
         // add 'Start' button
         const attachments: Array<any> = [
@@ -82,15 +90,17 @@ export class ComponentDecorator {
                 }]
             }
         ];
-        response = Object.assign(attachments, response);
+        Object.assign(response, attachments);
+        console.log("FFFF234", JSON.stringify(response))
         return response;
     }
 
     private static decorateMove = ({ response, requestCtx }: any): any => {
         const { dungeon, room } = requestCtx;
-        response = Object.assign({
-            text: "MOVE decorator room description here???",//requestCtx.dungeon
-        }, response);
+        Object.assign(response,
+            {
+                text: "MOVE decorator room description here???",//requestCtx.dungeon
+            });
 
 
         // add room description/image
@@ -192,7 +202,7 @@ export class ComponentDecorator {
             }
 
         }
-        response = Object.assign(blocks, response);
+        Object.assign(response, blocks);
 
         // add navigation buttons
         const { directions } = room;
@@ -217,8 +227,8 @@ export class ComponentDecorator {
                     value: roomName
                 })
             }
-            attachments = Object.assign(actions, attachments);
-            response = Object.assign(attachments, response);
+            Object.assign(attachments, actions);
+            Object.assign(response, attachments);
         }
 
         return response;

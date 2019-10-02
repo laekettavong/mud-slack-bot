@@ -23,11 +23,12 @@ export class SlackSubscriber implements Subscriber {
             // Slack bot endpoint verification, just send back 'challenge token
             this.handleChallenge(requestCtx);
         } else {
-            console.log("HERE1")
-            if(requestCtx.type === RequestType.Chat){
-              console.log("HERE2", requestCtx)
+            console.log("HERE1 TYPE", requestCtx.type)
+            if (requestCtx.type === RequestType.Chat) {
+                this.handleChat(requestCtx);
+            } else if (requestCtx.type === RequestType.Start || requestCtx.type === RequestType.Play) {
+                this.handleInteractiveComponent(requestCtx);
             }
-            this.handleInteractiveComponent(requestCtx);
         }
     }
 
@@ -36,10 +37,16 @@ export class SlackSubscriber implements Subscriber {
         ctx.body = { challenge };
     }
 
+    private handleChat = (requestCtx: RequestContext): any => {
+        let response = this.getCommonResponse(requestCtx);
+        response = ComponentDecorator.decorate({ response, requestCtx });
+        this.sendReponse({ response, requestCtx });
+    }
+
     private handleInteractiveComponent = (requestCtx: RequestContext): void => {
         const { dungeon, roomName } = requestCtx;
         const room = StateUtil.getRoomStateByName(dungeon.rooms, roomName);
-        requestCtx = Object.assign({ room }, requestCtx);
+        Object.assign(requestCtx, { room });
         let response = this.getCommonResponse(requestCtx);
         response = ComponentDecorator.decorate({ response, requestCtx });
         this.sendReponse({ response, requestCtx });
@@ -61,7 +68,7 @@ export class SlackSubscriber implements Subscriber {
         this.sendReponse({ response, requestCtx });
     }
 
-    private handleChat = (requestCtx: RequestContext): any => { }
+
     private handlePlay = (requestCtx: RequestContext): any => { }
     private handleMove = (requestCtx: RequestContext): any => { }
     private handlePickup = (requestCtx: RequestContext): any => { }
@@ -71,20 +78,22 @@ export class SlackSubscriber implements Subscriber {
 
 
 
-    private sendReponse = ({ response, requestCtx }: any) => {
-      const postActions = [RequestType.Move, RequestType.Chat, RequestType.Resume];
-      const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
-      console.log("Slack POST URL:", url);
-      const res = this.httpHandler({
-          method: 'POST',
-          url,
-          headers: {
-              'Authorization': 'Bearer xoxb-525990151425-767913038884-0ikzdX3hQndMGjN4CFq1Fc4L',
-              'Content-type': 'application/json; charset=utf-8'
-          },
-          json: true,
-          body: response
-      });
+    private sendReponse = async ({ response, requestCtx }: any) => {
+        const postActions = [RequestType.Chat, RequestType.Move, RequestType.Resume, RequestType.Start];
+        console.log("Slack POST URL1:", requestCtx.type, postActions, R.includes(requestCtx.type, postActions));
+        const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
+        console.log("Slack POST URL2:", url, requestCtx.responseUrl);
+        const res = await this.httpHandler({
+            method: 'POST',
+            url,
+            headers: {
+                'Authorization': 'Bearer xoxb-525990151425-767913038884-mCRmZ8MZazq7KE88jKpndZsD',
+                'Content-type': 'application/json; charset=utf-8'
+            },
+            json: true,
+            body: response
+        });
+        console.log("Slack POST RESULT:", res);
     }
 }
 

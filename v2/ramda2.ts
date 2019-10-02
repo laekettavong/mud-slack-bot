@@ -176,11 +176,11 @@ const getItem = (roomItems: Array<RoomItem>, itmName: string): RoomItem => JSON.
 const removeRoomItem = (dungeon: Dungeon, roomName: string, itemName: string): void => {
     let roomItems = getRoomItems(dungeon, roomName);
     for (let item of roomItems) {
-        if (item.itemName === itemName)  {
-          roomItems = R.reject(R.propEq('itemName', itemName), roomItems);
-          const indx = R.findIndex(R.propEq('roomName', roomName))(dungeon.rooms);
-          dungeon.rooms[indx].items = roomItems;
-          break;
+        if (item.itemName === itemName) {
+            roomItems = R.reject(R.propEq('itemName', itemName), roomItems);
+            const indx = R.findIndex(R.propEq('roomName', roomName))(dungeon.rooms);
+            dungeon.rooms[indx].items = roomItems;
+            break;
         }
     }
 }
@@ -234,9 +234,9 @@ pickupItem(dungeon, '101', 'The Entrance Hall', 'The Tome Of Lowrasil');
 
 
 type Foo = {
-  itemName: string
+    itemName: string
 }
-let myArr: Array<Foo> = [{itemName: 'foo'}, {itemName: 'bar'}, {itemName: 'fix'}]
+let myArr: Array<Foo> = [{ itemName: 'foo' }, { itemName: 'bar' }, { itemName: 'fix' }]
 // console.log(myArr)
 // myArr = R.reject(R.propEq('itemName', 'foo'), myArr)
 // console.log(myArr)
@@ -249,6 +249,8 @@ let myArr: Array<Foo> = [{itemName: 'foo'}, {itemName: 'bar'}, {itemName: 'fix'}
 
 
 
+console.log("FFFFF123", R.includes('Start', ['Play', 'Chat', 'Start']));
+
 
 // console.log(JSON.stringify(dungeon))
 // removeRoomItem(dungeon, 'The Tomb of the Unknown Goblin', 'The Gem of Sorrows')
@@ -259,10 +261,10 @@ let myArr: Array<Foo> = [{itemName: 'foo'}, {itemName: 'bar'}, {itemName: 'fix'}
 
 
 //console.log('\n\n', getRoomItems("The Tomb of the Unknown Goblin"));
-    // for (let indx in roomItems) {
-    //     if (roomItems[indx].itemName === itemName) roomItems[indx] = null;
-    // }
-    // console.log("XXINDEX: ", R.findIndex(R.propEq('roomName', roomName))(dungeon.rooms));
+// for (let indx in roomItems) {
+//     if (roomItems[indx].itemName === itemName) roomItems[indx] = null;
+// }
+// console.log("XXINDEX: ", R.findIndex(R.propEq('roomName', roomName))(dungeon.rooms));
 
 
 const item = R.filter(R.propEq('itemName', 'bez'))(roomItems)[0];

@@ -68,15 +68,15 @@ export type RequestContext = {
 }
 
 export enum RequestType {
-    Play = 'PLAY',
-    Chat = 'CHAT',
-    Move = 'MOVE',
-    Pickup = 'PICKUP',
-    Start = 'START',
-    Resume = 'RESUME',
-    Inventory = 'INVENTORY',
-    Drop = 'DROP',
-    Verify = 'VERIFY'
+    Play = 'play',
+    Chat = 'chat',
+    Move = 'move',
+    Pickup = 'pickup',
+    Start = 'start',
+    Resume = 'resume',
+    Inventory = 'inventory',
+    Drop = 'drop',
+    Verify = 'verify'
 }
 
 export enum NavDirection {
