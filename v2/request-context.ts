@@ -98,6 +98,8 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
       Object.assign(requestCtx,
         {
           type: RequestType.Move,
+          channel: user.id,
+          user: user.id,
           direction: name, // chosen direction
           roomName: value, // chosen room name
         });

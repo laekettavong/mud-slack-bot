@@ -90,7 +90,8 @@ export class ComponentDecorator {
     }
 
     private static decorateMove = ({ response, requestCtx }: any): any => {
-        const { room } = requestCtx;
+        const { roomName, room } = requestCtx;
+        //console.log("ROOM", roomName, room)
         Object.assign(response, { type: "mrkdwn", text: "Dungeon room" });
 
         // add room description/image
@@ -162,7 +163,7 @@ export class ComponentDecorator {
                 let direction = Object.keys(move)[0];
                 let roomName = Object.values(move)[0]
                 actions.push({
-                    name: direction,
+                    name: "move",
                     type: "button",
                     action_id: direction,
                     text: DecoratorUtil.getNavigationLabel(direction),

@@ -34,6 +34,7 @@ router.get('/bot', async (ctx, next) => {
 
 router.post('/bot', async (ctx, next) => {
     slackPublisher.notify(handleRequest(ctx, forsakenGoblin))
+    //ctx.status = 200;
 });
 
 app.use(router.routes()).use(router.allowedMethods());
@@ -65,7 +66,7 @@ app.listen(5555);
                 messageTimeStamp: action_ts,
                 responseUrl: response_url
             }
-// observer needs 
+// observer needs
     type, slackUserId, messageType, messageTimeStamp, responseUrl
 // decorator needs
     channel: slackUserId, messageTimeStamp, room

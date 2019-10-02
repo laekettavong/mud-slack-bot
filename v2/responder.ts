@@ -22,10 +22,10 @@ export class SlackSubscriber implements Subscriber {
             // Slack bot endpoint verification, just send back 'challenge token
             this.handleChallenge(requestCtx);
         } else {
-            console.log("Interactive Component:", requestCtx.type)
+            console.log("XXX-IC:", requestCtx.type)
             if (requestCtx.type === RequestType.Chat) {
                 this.handleChat(requestCtx);
-            } else if (requestCtx.type === RequestType.Start || requestCtx.type === RequestType.Play) {
+            } else if (requestCtx.type === RequestType.Move || requestCtx.type === RequestType.Play || requestCtx.type === RequestType.Start) {
                 this.handleInteractiveComponent(requestCtx);
             }
         }
@@ -53,7 +53,7 @@ export class SlackSubscriber implements Subscriber {
 
     private getCommonResponse = (requestCtx: RequestContext): any => {
         const { user, timestamp } = requestCtx;
-        console.log("\n\nXXX getCommonResponse", user, timestamp)
+        //console.log("XXX getCommonResponse", user, timestamp)
         return {
             channel: user, //using user for direct messaging
             as_user: true,
@@ -65,35 +65,32 @@ export class SlackSubscriber implements Subscriber {
     private handleStart = (requestCtx: RequestContext): any => {
         let response = this.getCommonResponse(requestCtx);
         response = ComponentDecorator.decorate({ response, requestCtx });
-        this.sendReponse({ response, requestCtx });
+        return this.sendReponse({ response, requestCtx });
     }
 
-
-    private handlePlay = (requestCtx: RequestContext): any => { }
-    private handleMove = (requestCtx: RequestContext): any => { }
     private handlePickup = (requestCtx: RequestContext): any => { }
     private handleDrop = (requestCtx: RequestContext): any => { }
     private handleInventory = (requestCtx: RequestContext): any => { }
     private handleResume = (requestCtx: RequestContext): any => { }
 
-
-
     private sendReponse = async ({ response, requestCtx }: any) => {
         const postActions = [RequestType.Chat, RequestType.Move, RequestType.Play, RequestType.Resume, RequestType.Start];
         //console.log("Slack POST URL1:", requestCtx.type, R.includes(requestCtx.type, postActions));
         const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
-        console.log("Slack POST URL2:", url, requestCtx.responseUrl);
+        //console.log("Slack POST URL2:", url, requestCtx.responseUrl);
         const res = await this.httpHandler({
             method: 'POST',
             url,
             headers: {
-                'Authorization': 'Bearer xoxb-525990151425-767913038884-mCRmZ8MZazq7KE88jKpndZsD',
+                'Authorization': 'Bearer xoxb-525990151425-767913038884-CvtHIYWxWAdOjE79lSuOcoHs',
                 'Content-type': 'application/json; charset=utf-8'
             },
             json: true,
             body: response
+
         });
-        //console.log("Slack POST RESULT:", res);
+        if (res && res.ok) requestCtx.ctx.status = 200;
+        //console.log("POST result:", or, error);
     }
 }
 
