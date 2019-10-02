@@ -35,6 +35,12 @@ export class StateUtil {
         return JSON.parse(JSON.stringify(R.filter(R.propEq('itemName', itmName))(roomItems)[0]));
     }
 
+    public static getRoomItem = (dungeon: Dungeon, roomName: string, itmName: string): RoomItem => {
+        const roomItems = StateUtil.getRoomItems(dungeon, roomName);
+        const item = R.filter(R.propEq('itemName', itmName))(roomItems);
+        return JSON.parse(JSON.stringify(item))[0];
+    }
+
     public static removeRoomItem = (dungeon: Dungeon, roomName: string, itemName: string): void => {
       let roomItems = StateUtil.getRoomItems(dungeon, roomName);
       for (let item of roomItems) {
@@ -59,16 +65,17 @@ export class StateUtil {
         return player;
     }
 
-    public static setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string, itemName: string, gold: number): void => {
+    public static setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string, itemName: string, gold: string): void => {
+      //const {itemValue} = StateUtil.getRoomItem(dungeon, currentRoom, itemName);
         const player: Player = StateUtil.getPlayerState(dungeon, playerId);
         if (player) {
-            player.gold += gold;
+            player.gold += +gold;
             player.currentRoom = currentRoom;
             player.inventory.push(itemName);
         } else {
             dungeon.players.push({
                 id: playerId,
-                gold,
+                gold: +gold,
                 startRoom: currentRoom,
                 currentRoom,
                 inventory: [itemName]
@@ -79,8 +86,9 @@ export class StateUtil {
     public static pickupItem = (dungeon: Dungeon, playerId: string, roomName: string, itmName: string) => {
       const roomItems = StateUtil.getRoomItems(dungeon, roomName);
       const { itemName, itemValue } = StateUtil.getItem(roomItems, itmName);
-      StateUtil.setPlayerState(dungeon, roomName, playerId, itemName, +itemValue);
       StateUtil.removeRoomItem(dungeon, roomName, itemName);
+      StateUtil.setPlayerState(dungeon, roomName, playerId, itemName, itemValue);
+      console.log(dungeon.players)
     }
 }
 

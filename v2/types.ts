@@ -76,7 +76,8 @@ export enum RequestType {
     Resume = 'resume',
     Inventory = 'inventory',
     Drop = 'drop',
-    Verify = 'verify'
+    Verify = 'verify',
+    Ignore = 'ignore'
 }
 
 export enum NavDirection {

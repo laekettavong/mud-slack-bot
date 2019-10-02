@@ -36,8 +36,6 @@ slackPublisher.add(new SlackSubscriber(rp))
 
 router.post('/bot', async (ctx, next) => {
     console.log("\n\nXXXX bot is alive", ctx.request.body)
-    //console.table(ctx.response)
-    //console.table(ctx.request.body);
     // for URL validation during bot event subscription set up/config
     if (ctx.request.body.challenge) {
         ctx.body = { challenge: ctx.request.body.challenge };

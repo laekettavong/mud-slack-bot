@@ -6,18 +6,7 @@ import { SlackPublisher } from './broadcaster';
 import { SlackSubscriber } from './responder';
 import { handleRequest } from './request-context'
 import * as forsakenGoblin from './dungeon.json'
-
-// import {
-//     SlackAction,
-//     ActionType,
-//     MessageType,
-//     DungeonRoom,
-//     DungeonRoomMetadata,
-//     DungeonRoomState,
-//     RoomDirectionState,
-//     RequestContext,
-//     RequestType
-// } from './types';
+require('dotenv').config()
 
 const app = new Koa();
 const router = new Router();
@@ -33,8 +22,13 @@ router.get('/bot', async (ctx, next) => {
 });
 
 router.post('/bot', async (ctx, next) => {
-    slackPublisher.notify(handleRequest(ctx, forsakenGoblin))
+    console.log("ctx.statusA", ctx.status);
     ctx.status = 200;
+    ctx.body = '';
+    slackPublisher.notify(handleRequest(ctx, forsakenGoblin))
+     console.log("ctx.statusB", ctx.status);
+     
+    //ctx.status = 200;
 });
 
 app.use(router.routes()).use(router.allowedMethods());
@@ -42,167 +36,131 @@ app.listen(5555);
 
 
 
-
+// https://api.slack.com/apps/ANN6W2UET/interactive-messages?
 
 /*
+(1) **Reply only to client message - 'Hi'
+  Values { user: 'UFGEC4XNX',
+    channel: 'DNNH6UTDL',
+    text: 'hi',
+    event_ts: '1570027054.009500',
+    team: 'TFFV44FCH',
+    client_msg_id: 'dd23d2e2-0dbb-4e8a-b0ff-cd5f7fb0d0b0',
+    event:
+     { client_msg_id: 'dd23d2e2-0dbb-4e8a-b0ff-cd5f7fb0d0b0',
+       type: 'message',
+       text: 'hi',
+       user: 'UFGEC4XNX',
+       ts: '1570027054.009500',
+       team: 'TFFV44FCH',
+       channel: 'DNNH6UTDL',
+       event_ts: '1570027054.009500',
+       channel_type: 'im' 
+     } 
+  }
+         
+(2) **Reply only to client message - 'Play'
+  Values { user: 'UFGEC4XNX',
+    channel: 'DNNH6UTDL',
+    text: 'play',
+    event_ts: '1570027131.009800',
+    team: 'TFFV44FCH',
+    client_msg_id: 'fac2119f-e53f-42f1-bb7b-a56e4a0d5154',
+    event:
+     { client_msg_id: 'fac2119f-e53f-42f1-bb7b-a56e4a0d5154',
+       type: 'message',
+       text: 'play',
+       user: 'UFGEC4XNX',
+       ts: '1570027131.009800',
+       team: 'TFFV44FCH',
+       channel: 'DNNH6UTDL',
+       event_ts: '1570027131.009800',
+       channel_type: 'im'
+     } 
+  }
 
-// console.log(/play/gi.test(text));
-// console.log(/start/gi.test(text));
-// console.log(/pickup/gi.test(text));
-// console.log(/move/gi.test(text));
+(3) **Get user response from IC - 'Start' button
+  Values { user: { id: 'UFGEC4XNX', name: 'laekettavong' },
+    name: 'start',
+    value: 'start',
+    text: undefined,
+    action_ts: undefined,
+    response_url:
+     'https://hooks.slack.com/actions/TFFV44FCH/768386365346/864itWZqAGj95lMbY1wSQNcT',
+    channel: { id: 'DNNH6UTDL', name: 'directmessage' },
+    team: { id: 'TFFV44FCH', domain: 'laekettavong' },
+    actions: { name: 'start', type: 'button', value: 'start' } 
+  }
 
-// TODO:
-
- Create:
-    ActionDelegator
-        -sniffs out user action, create corresponding action and pass to broadcaster
-
-
-                    let slackAction: SlackAction = {
-                type: ActionType.Play,
-                messageType, //MessageType.Update,
-                slackUserId: user.id,
-                channelId: channel.id,
-                messageTimeStamp: action_ts,
-                responseUrl: response_url
-            }
-// observer needs
-    type, slackUserId, messageType, messageTimeStamp, responseUrl
-// decorator needs
-    channel: slackUserId, messageTimeStamp, room
-
-const requestCtx = {
-    ctx: any;
-    requestType: any;
-    user: string;
-    channel: string;
-    team: string
-    timestamp: string;
-    responseUrl: string
-    challenge: string
-    text: string
-
+(4) **Get user response from IC - Navigation button ()
+{
+  "user": {
+    "id": "UFGEC4XNX",
+    "name": "laekettavong"
+  },
+  "name": "move",
+  "value": "The Goblin Cloak Room",
+  "response_url": "https://hooks.slack.com/actions/TFFV44FCH/774738720913/UasQHI7orJFXGtR13TinChnD",
+  "channel": {
+    "id": "DNNH6UTDL",
+    "name": "directmessage"
+  },
+  "team": {
+    "id": "TFFV44FCH",
+    "domain": "laekettavong"
+  },
+  "actions": {
+    "name": "move",
+    "type": "button",
+    "value": "The Goblin Cloak Room"
+  }
 }
 
-
-
-
-// export type RequestContext = {
-//     ctx: any;
-//     type: RequestType;
-//     user: string;
-//     channel: string;
-//     team: string
-//     dungeon: string,
-//     room: string,
-//     timestamp: string;
-//     responseUrl: string
-//     challenge: string
-//     text: string
-// }
-
-// export enum RequestType {
-//     Play = 'PLAY',
-//     Chat = 'CHAT',
-//     Move = 'MOVE',
-//     Pickup = 'PICKUP',
-//     Start = 'START',
-//     Resume = 'RESUME',
-//     Inventory = 'INVENTORY',
-//     Drop = 'DROP',
-//     Verify = 'VERIFY'
-// }
-
-
-const getRequestContext = (ctx: any): RequestContext => {
-    const { body } = ctx.ctx.request.body;
-    const { challenge, event, payload } = body;
-    const { user, channel, text, event_ts, team, client_msg_id } = event;
-
-    ctx.status = 200;
-    let requestCtx: RequestContext = {
-        ctx,
-        type: undefined,
-        user: '',
-        channel: '',
-        team: '',
-        dungeon: undefined,
-        room: undefined,
-        roomName: '',
-        itemName: '',
-        timestamp: '',
-        responseUrl: '',
-        challenge: '',
-        text: ''
-    };
-
-    // send back Slack 'challenge' token for endpoint verification
-    if (challenge) {
-        requestCtx = Object.assign({
-            type: RequestType.Verify,
-            challenge
-        }, requestCtx);
-    }
-
-    // respond only to message from user
-    if (client_msg_id) {
-        //const { user, channel, text, team, event_ts } = event;
-        // user entered 'play' in response to 'Do you want to play a game?'
-        if (/play/gi.test(text)) {
-            // send user game intro interactive component (IC)
-            requestCtx = Object.assign({
-                type: RequestType.Play,
-                timestamp: event_ts,
-                user,
-                channel,
-                team,
-                text,
-                dungeon: forsakenGoblin,
-                //room: "TODO",
-            }, requestCtx);
-        } else {
-            // respond to user DM - i.e. '@mudbot ...'
-            // respond with 'Do you want to play a game...'
-            requestCtx = Object.assign({ type: RequestType.Chat }, requestCtx);
-        }
-    }
-
-    // get user response from IC
-    if (!event && payload) {
-        const { actions, channel, team, user, response_url } = JSON.parse(payload);
-        const { name, value, text, action_ts } = actions[0];
-
-        requestCtx = Object.assign({
-            user,
-            channel,
-            team,
-            text,
-            dungeon: forsakenGoblin,
-            timestamp: action_ts,
-            responseUrl: response_url
-        }, requestCtx);
-
-        if (/move/gi.test(name)) {
-            requestCtx = Object.assign({
-                type: RequestType.Move,
-                direction: name, // chosen direction
-                roomName: value, // chosen room name
-            }, requestCtx);
-        }
-
-        if (text && /pickup/gi.test(text.text)) {
-            requestCtx = Object.assign({
-                type: RequestType.Pickup,
-                itemName: value // chosen item name
-            }, requestCtx);
-        }
-
-    }
-
-    return requestCtx;
+(4) **Get user response from IC - Navigation button ()
+{
+  "user": {
+    "id": "UFGEC4XNX",
+    "name": "laekettavong"
+  },
+  "name": "move",
+  "value": "The Entrance Hall",
+  "response_url": "https://hooks.slack.com/actions/TFFV44FCH/769693818691/YGNtU7PhtxSqsrBQShE8n1Mk",
+  "channel": {
+    "id": "DNNH6UTDL",
+    "name": "directmessage"
+  },
+  "team": {
+    "id": "TFFV44FCH",
+    "domain": "laekettavong"
+  },
+  "actions": {
+    "name": "move",
+    "type": "button",
+    "value": "The Entrance Hall"
+  }
 }
-
-
-
+(5)
+{
+  "user": {
+    "id": "UFGEC4XNX",
+    "name": "laekettavong"
+  },
+  "name": "move",
+  "value": "The Goblin Cloak Room",
+  "response_url": "https://hooks.slack.com/actions/TFFV44FCH/780713459876/CQ3Kse6eU2doqrrd0xagSxwd",
+  "channel": {
+    "id": "DNNH6UTDL",
+    "name": "directmessage"
+  },
+  "team": {
+    "id": "TFFV44FCH",
+    "domain": "laekettavong"
+  },
+  "actions": {
+    "name": "move",
+    "type": "button",
+    "value": "The Goblin Cloak Room"
+  }
+}
 
 */
