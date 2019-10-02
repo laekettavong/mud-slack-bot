@@ -13,8 +13,8 @@ export class ComponentDecorator {
     public static decorate({ response, requestCtx }: any) {
         switch (requestCtx.type) {
             case RequestType.Play:
-            case RequestType.Start:
                 return this.decoratePlay({ response, requestCtx });
+            case RequestType.Start:
             case RequestType.Move:
                 return this.decorateMove({ response, requestCtx });
             case RequestType.Pickup:
@@ -40,11 +40,7 @@ export class ComponentDecorator {
 
     private static decoratePlay = ({ response, requestCtx }: any): any => {
         const { dungeon } = requestCtx;
-        Object.assign(response,
-            {
-                text: "START decorator dungeon description here???", //dungeon.dungeonName
-            });
-
+        Object.assign(response, { text: "Dungeon entrance, enter at your own risk" });
         // add description/image
         const blocks: Array<any> = [
             {
@@ -72,17 +68,16 @@ export class ComponentDecorator {
                 }
             }
         ];
-        Object.assign(response, blocks);
-
+        Object.assign(response, { blocks });
         // add 'Start' button
         const attachments: Array<any> = [
             {
-                text: "Let's go fild some gold!",
+                text: "Let's go find some gold!",
                 callback_id: "myCallback", //TODO: callbackId from Slack
                 color: "#C2061E",
                 attachment_type: "default",
                 actions: [{
-                    name: "move",
+                    name: "start",
                     type: "button",
                     action_id: "start",
                     text: "Start",
@@ -90,18 +85,13 @@ export class ComponentDecorator {
                 }]
             }
         ];
-        Object.assign(response, attachments);
-        console.log("FFFF234", JSON.stringify(response))
+        Object.assign(response, { attachments });
         return response;
     }
 
     private static decorateMove = ({ response, requestCtx }: any): any => {
-        const { dungeon, room } = requestCtx;
-        Object.assign(response,
-            {
-                text: "MOVE decorator room description here???",//requestCtx.dungeon
-            });
-
+        const { room } = requestCtx;
+        Object.assign(response, { type: "mrkdwn", text: "Dungeon room" });
 
         // add room description/image
         const blocks: Array<any> = [
@@ -117,53 +107,6 @@ export class ComponentDecorator {
                     alt_text: "Dungeon"
                 }
             }
-
-            /*
-                 {
-                     "type": "context",
-                     "elements": [
-                         {
-                             "type": "mrkdwn",
-                             "text": "_Items up for grabs_"
-                         }
-                     ]
-                 },
-                 {
-                     "type": "divider"
-                 },
-                 {
-                     "type": "section",
-                     "text": {
-                         "type": "mrkdwn",
-                         "text": ":moneybag: *_The Gem of Sorrows_ ($50)*\nA tiny, blue gemstone that sparkles with fire, casting a troubling blue glow out into the room."
-                     },
-                     "accessory": {
-                         "type": "button",
-                         "text": {
-                             "type": "plain_text",
-                             "emoji": true,
-                             "text": "Pickup"
-                         },
-                         "value": "The Gem of Sorrows"
-                     }
-                 },
-                 {
-                     "type": "section",
-                     "text": {
-                         "type": "mrkdwn",
-                         "text": ":moneybag: *_Mordua's Crown_ ($25) *\nA silver crown fashioned of delicate vines and leaves.  The legends say that Mordua's dying words were a spell that enchanted this crown to bring its owner luck."
-                     },
-                     "accessory": {
-                         "type": "button",
-                         "text": {
-                             "type": "plain_text",
-                             "emoji": true,
-                             "text": "Pickup"
-                         },
-                         "value": "Mordua's Crown"
-                     }
-                 }
-                 */
         ];
         const { items } = room;
         if (items.length > 0) {
@@ -186,7 +129,7 @@ export class ComponentDecorator {
                         type: "section",
                         text: {
                             type: "mrkdwn",
-                            text: `:moneybag: *_${item.itemName}_ ($${item.value})*\n${item.itemDesc}`
+                            text: `:moneybag: *_${item.itemName}_ ($${item.itemValue})*\n${item.itemDesc}`
                         },
                         accessory: {
                             type: "button",
@@ -200,10 +143,8 @@ export class ComponentDecorator {
                     }
                 );
             }
-
         }
-        Object.assign(response, blocks);
-
+        Object.assign(response, { blocks });
         // add navigation buttons
         const { directions } = room;
         if (directions.length > 0) {
@@ -215,6 +156,7 @@ export class ComponentDecorator {
                     attachment_type: "default",
                 }
             ];
+
             let actions = [];
             for (let move of directions) {
                 let direction = Object.keys(move)[0];
@@ -223,70 +165,14 @@ export class ComponentDecorator {
                     name: direction,
                     type: "button",
                     action_id: direction,
-                    text: DecoratorUtil.getNavigationLabel(direction), // 'w'
+                    text: DecoratorUtil.getNavigationLabel(direction),
                     value: roomName
                 })
             }
-            Object.assign(attachments, actions);
-            Object.assign(response, attachments);
+            Object.assign(attachments[0], { actions });
+            Object.assign(response, { attachments });
         }
-
         return response;
-        /*
-        const attachmentsX: Array<any> = [
-            {
-                text: "*_Make your next move_*",
-                callback_id: "myCallback", //TODO: callbackId from Slack
-                color: "#3AA3E3",
-                attachment_type: "default",
-                actions: [{
-                    name: "move",
-                    type: "button",
-                    action_id: "moveWest",
-                    text: "W",
-                    value: "west"
-                },
-                {
-                    name: "move",
-                    type: "button",
-                    action_id: "moveNorth",
-                    text: "N",
-                    value: "north"
-                },
-                {
-                    name: "move",
-                    type: "button",
-                    action_id: "moveSouth",
-                    text: "S",
-                    value: "south"
-                },
-                {
-                    name: "move",
-                    type: "button",
-                    action_id: "moveEast",
-                    text: "E",
-                    value: "east"
-                },
-                {
-                    name: "move",
-                    type: "button",
-                    action_id: "moveDown",
-                    text: "D",
-                    value: "down"
-                },
-                {
-                    name: "move",
-                    type: "button",
-                    action_id: "moveUp",
-                    text: "U",
-                    value: "up"
-                }]
-            }
-        ];
-
-        response = Object.assign(attachmentsX, response);
-        return response;
-        */
     }
 
     private static decoratePickup = ({ response, requestCtx }: any): any => {

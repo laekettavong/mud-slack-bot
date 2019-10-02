@@ -9,7 +9,7 @@ import {
 export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => {
   const { body } = ctx.request;
   const { challenge, event, payload } = body;
-
+  console.log("\nXXX0")
 
   ctx.status = 200;
   let requestCtx: RequestContext = {
@@ -38,7 +38,8 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
   }
   else if (event) {
     const { user, channel, text, event_ts, team, client_msg_id } = event;
-    console.log("\nXXX1 client_msg_id", client_msg_id)
+    console.log("\n\nXXX1 CHAT|PLAY ")
+
 
     Object.assign(requestCtx,
       {
@@ -56,10 +57,11 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
       if (/play/gi.test(text)) {
         // send user game intro interactive component (IC)
         Object.assign(requestCtx, {
-          type: RequestType.Start,
+          type: RequestType.Play,
           roomName: "The Entrance Hall" // TODO randomize
         });
       } else {
+        console.log("\nYO3")
         // respond to user DM - i.e. '@mudbot ...'
         // respond with 'Do you want to play a game...'
         Object.assign(requestCtx, { type: RequestType.Chat });
@@ -67,10 +69,9 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
     }
   }
   else if (!event && payload) { // get user response from IC
-    console.log("\nXXX2", payload)
+    console.log("\nXXX2 START|MOVE|PICKUP")
     const { actions, channel, team, user, response_url } = JSON.parse(payload);
     const { name, value, text, action_ts } = actions[0];
-
     Object.assign(requestCtx,
       {
         type: RequestType.Chat,
@@ -82,6 +83,16 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
         timestamp: action_ts,
         responseUrl: response_url
       });
+
+    if (/start/gi.test(value)) {
+      Object.assign(requestCtx,
+        {
+          type: RequestType.Start,
+          channel: user.id,
+          user: user.id,
+          roomName: "The Entrance Hall", // chosen room name
+        });
+    }
 
     if (/move/gi.test(name)) {
       Object.assign(requestCtx,

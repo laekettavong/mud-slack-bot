@@ -5,7 +5,6 @@ import { ComponentDecorator } from './decorator'
 import {
     RequestContext,
     Subscriber,
-    Subscribable,
     RequestType
 } from './types'
 
@@ -23,7 +22,7 @@ export class SlackSubscriber implements Subscriber {
             // Slack bot endpoint verification, just send back 'challenge token
             this.handleChallenge(requestCtx);
         } else {
-            console.log("HERE1 TYPE", requestCtx.type)
+            console.log("Interactive Component:", requestCtx.type)
             if (requestCtx.type === RequestType.Chat) {
                 this.handleChat(requestCtx);
             } else if (requestCtx.type === RequestType.Start || requestCtx.type === RequestType.Play) {
@@ -53,7 +52,8 @@ export class SlackSubscriber implements Subscriber {
     }
 
     private getCommonResponse = (requestCtx: RequestContext): any => {
-        const { ctx, user, dungeon, room, timestamp } = requestCtx;
+        const { user, timestamp } = requestCtx;
+        console.log("\n\nXXX getCommonResponse", user, timestamp)
         return {
             channel: user, //using user for direct messaging
             as_user: true,
@@ -79,8 +79,8 @@ export class SlackSubscriber implements Subscriber {
 
 
     private sendReponse = async ({ response, requestCtx }: any) => {
-        const postActions = [RequestType.Chat, RequestType.Move, RequestType.Resume, RequestType.Start];
-        console.log("Slack POST URL1:", requestCtx.type, postActions, R.includes(requestCtx.type, postActions));
+        const postActions = [RequestType.Chat, RequestType.Move, RequestType.Play, RequestType.Resume, RequestType.Start];
+        //console.log("Slack POST URL1:", requestCtx.type, R.includes(requestCtx.type, postActions));
         const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
         console.log("Slack POST URL2:", url, requestCtx.responseUrl);
         const res = await this.httpHandler({
@@ -93,7 +93,7 @@ export class SlackSubscriber implements Subscriber {
             json: true,
             body: response
         });
-        console.log("Slack POST RESULT:", res);
+        //console.log("Slack POST RESULT:", res);
     }
 }
 
