@@ -53,7 +53,7 @@ export class SlackSubscriber implements Subscriber {
 
     private getCommonResponse = (requestCtx: RequestContext): any => {
         const { user, timestamp } = requestCtx;
-        //console.log("XXX getCommonResponse", user, timestamp)
+        console.log("XXX getCommonResponse", user, timestamp)
         return {
             channel: user, //using user for direct messaging
             as_user: true,
@@ -77,7 +77,7 @@ export class SlackSubscriber implements Subscriber {
         const postActions = [RequestType.Chat, RequestType.Move, RequestType.Play, RequestType.Resume, RequestType.Start];
         //console.log("Slack POST URL1:", requestCtx.type, R.includes(requestCtx.type, postActions));
         const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
-        //console.log("Slack POST URL2:", url, requestCtx.responseUrl);
+        //console.log("Slack POST URL2:", JSON.stringify(response));
         const res = await this.httpHandler({
             method: 'POST',
             url,
@@ -89,8 +89,8 @@ export class SlackSubscriber implements Subscriber {
             body: response
 
         });
-        if (res && res.ok) requestCtx.ctx.status = 200;
-        //console.log("POST result:", or, error);
+        //if (res && res.ok) requestCtx.ctx.status = 200;
+        console.log("POST result:", res);
     }
 }
 

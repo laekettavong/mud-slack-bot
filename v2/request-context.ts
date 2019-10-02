@@ -38,7 +38,7 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
   }
   else if (event) {
     const { user, channel, text, event_ts, team, client_msg_id } = event;
-    console.log("\n\nXXX1 CHAT|PLAY ")
+    console.log("\n\nXXX1 CHAT|PLAY ", user)
 
 
     Object.assign(requestCtx,
@@ -58,6 +58,8 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
         // send user game intro interactive component (IC)
         Object.assign(requestCtx, {
           type: RequestType.Play,
+          channel: user,
+          user,
           roomName: "The Entrance Hall" // TODO randomize
         });
       } else {
