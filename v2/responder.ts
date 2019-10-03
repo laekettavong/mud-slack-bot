@@ -3,9 +3,11 @@ import { StateUtil } from './util';
 import { ComponentDecorator } from './decorator'
 
 import {
+    Player,
     RequestContext,
+    RoomItem,
+    RequestType,
     Subscriber,
-    RequestType
 } from './types'
 
 
@@ -27,6 +29,9 @@ export class SlackSubscriber implements Subscriber {
                 break;
             case RequestType.Pickup:
                 this.handlePickup(requestCtx);
+                break;
+            case RequestType.Inventory:
+                this.handleInventory(requestCtx);
                 break;
             case RequestType.Chat:
                 this.handleChat(requestCtx);
@@ -51,26 +56,20 @@ export class SlackSubscriber implements Subscriber {
     }
 
     private handleInteractiveComponent = (requestCtx: RequestContext): void => {
-        const { dungeon, roomName } = requestCtx;
+        const { dungeon, roomName, user } = requestCtx;
         const room = StateUtil.getRoomStateByName(dungeon.rooms, roomName);
-        Object.assign(requestCtx, { room });
-
+        Object.assign(requestCtx, { room, inventory: [] });
+        const player: Player = StateUtil.getPlayerState(dungeon, user);
+        if(player) {
+            Object.assign(requestCtx, { inventory: player.inventory });
+        }
         let response = this.getCommonResponse(requestCtx);
-        console.log("XXXX response1", JSON.stringify(response))
         response = ComponentDecorator.decorate({ response, requestCtx });
-        console.log("XXXX response2", JSON.stringify(response))
-
-        //StateUtil.setPlayerState(dungeon, currentRoom: string, playerId: string, itemName: string, gold: number)
-
         this.sendReponse({ response, requestCtx });
     }
 
     private handlePickup = (requestCtx: RequestContext): any => {
         const { dungeon, roomName, itemName, user } = requestCtx;
-        //console.group("**Handle pickup item");
-        //  const item = StateUtil.getRoomItem(dungeon, roomName, itemName);
-        // const lae = {roomName, itemName, item, user};
-        // console.log(JSON.stringify(lae))
         StateUtil.pickupItem(dungeon, user, roomName, itemName);
         this.handleInteractiveComponent(requestCtx);
     }
@@ -91,28 +90,23 @@ export class SlackSubscriber implements Subscriber {
         return this.sendReponse({ response, requestCtx });
     }
 
+    private handleInventory = (requestCtx: RequestContext): any => {
+        const { dungeon, user } = requestCtx;
+        const { inventory } = StateUtil.getPlayerState(dungeon, user);
+        //console.log("***handleInventory:", user, JSON.stringify(inventory));
+        Object.assign(requestCtx, { inventory });
+        let response = this.getCommonResponse(requestCtx);
+        response = ComponentDecorator.decorate({ response, requestCtx });
+        this.sendReponse({ response, requestCtx });
+    }
 
     private handleDrop = (requestCtx: RequestContext): any => { }
-    private handleInventory = (requestCtx: RequestContext): any => { }
     private handleResume = (requestCtx: RequestContext): any => { }
 
-    private sendReponse = async ({ response, requestCtx }: any) => {
+    private sendReponse = ({ response, requestCtx }: any) => {
         const postActions = [RequestType.Chat, RequestType.Move, RequestType.Play, RequestType.Resume, RequestType.Start];
         const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
-        console.log("Slack POST URL2:", url, JSON.stringify(response));
-        //console.log("Slack POST URL2:", url);
-        // const res = await this.httpHandler({
-        //     method: 'POST',
-        //     url,
-        //     headers: {
-        //         'Authorization': `Bearer ${process.env.SLACK_BOT_USER_OAUTH_TOKEN}`,
-        //         'Content-type': 'application/json; charset=utf-8'
-        //     },
-        //     json: true,
-        //     body: response
-
-        // });
-
+        //console.log("Slack POST URL2:", url, JSON.stringify(response));
         const res = (async () => {
             return await this.httpHandler({
                 method: 'POST',
@@ -125,10 +119,6 @@ export class SlackSubscriber implements Subscriber {
                 body: response
             });
         })();
-
-        console.log("isOK?", JSON.stringify(res));
-        // if (res && res.ok) {
-        //   requestCtx.ctx.status = 200;
-        // }
+        //console.log("isOK?", JSON.stringify(res));
     }
 }

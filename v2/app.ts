@@ -4,8 +4,8 @@ import bodyParser from 'koa-bodyparser';
 import rp from 'request-promise';
 import { SlackPublisher } from './broadcaster';
 import { SlackSubscriber } from './responder';
-import { handleRequest } from './request-context'
-import * as forsakenGoblin from './dungeon.json'
+import { handleRequest } from './request-context';
+import * as forsakenGoblin from './dungeon.json';
 require('dotenv').config()
 
 const app = new Koa();
@@ -22,13 +22,9 @@ router.get('/bot', async (ctx, next) => {
 });
 
 router.post('/bot', async (ctx, next) => {
-    console.log("ctx.statusA", ctx.status);
     ctx.status = 200;
     ctx.body = '';
     slackPublisher.notify(handleRequest(ctx, forsakenGoblin))
-     console.log("ctx.statusB", ctx.status);
-     
-    //ctx.status = 200;
 });
 
 app.use(router.routes()).use(router.allowedMethods());
@@ -55,10 +51,10 @@ app.listen(5555);
        team: 'TFFV44FCH',
        channel: 'DNNH6UTDL',
        event_ts: '1570027054.009500',
-       channel_type: 'im' 
-     } 
+       channel_type: 'im'
+     }
   }
-         
+
 (2) **Reply only to client message - 'Play'
   Values { user: 'UFGEC4XNX',
     channel: 'DNNH6UTDL',
@@ -76,7 +72,7 @@ app.listen(5555);
        channel: 'DNNH6UTDL',
        event_ts: '1570027131.009800',
        channel_type: 'im'
-     } 
+     }
   }
 
 (3) **Get user response from IC - 'Start' button
@@ -89,7 +85,7 @@ app.listen(5555);
      'https://hooks.slack.com/actions/TFFV44FCH/768386365346/864itWZqAGj95lMbY1wSQNcT',
     channel: { id: 'DNNH6UTDL', name: 'directmessage' },
     team: { id: 'TFFV44FCH', domain: 'laekettavong' },
-    actions: { name: 'start', type: 'button', value: 'start' } 
+    actions: { name: 'start', type: 'button', value: 'start' }
   }
 
 (4) **Get user response from IC - Navigation button ()

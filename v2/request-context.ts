@@ -28,7 +28,7 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
     team: '',
     dungeon: undefined,
     room: undefined,
-    roomName: '', 
+    roomName: '',
     itemName: '',
     timestamp: '',
     responseUrl: '',
@@ -49,10 +49,10 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
     console.group("**Get user response from IC");
     const { actions, channel, team, user, response_url, message } = JSON.parse(payload);
     const { name, value, text, action_ts } = actions[0];
-    const lae = { user, name, value, text, action_ts, response_url, channel, team, actions: actions[0]};
+    const lae = { user, name, value, text, action_ts, response_url, channel, team, actions: actions[0] };
     //console.log(lae);
     //console.log(JSON.stringify(JSON.parse(payload)));
-    //console.table(lae);
+    console.table(JSON.stringify(lae));
 
     Object.assign(requestCtx,
       {
@@ -86,7 +86,25 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
           roomName: value, // chosen room name
         });
     }
-  //console.log("LAE1", text, /pickup/i.test(text.text))
+
+    if (/inventory/i.test(name)) {
+      Object.assign(requestCtx,
+        {
+          type: RequestType.Inventory,
+          channel: user.id,
+          user: user.id,
+        });
+    }
+
+      if (/resume/i.test(name)) {
+      Object.assign(requestCtx,
+        {
+          type: RequestType.Move,
+          channel: user.id,
+          user: user.id,
+        });
+    }
+    //console.log("LAE1", text, /pickup/i.test(text.text))
     if (text && /pickup/i.test(text.text)) {
       requestCtx = Object.assign(requestCtx,
         {
@@ -101,7 +119,7 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
   if (event && event.client_msg_id) {
     console.group("**Reply only to client message");
     const { user, channel, text, event_ts, team, client_msg_id } = event;
-    const lae = { user, channel, text, event_ts, team, client_msg_id, event};
+    const lae = { user, channel, text, event_ts, team, client_msg_id, event };
     //console.log(JSON.stringify(lae));
     //console.table(lae);
 

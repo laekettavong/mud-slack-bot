@@ -1,3 +1,15 @@
+
+import * as R from 'ramda';
+//import * as forsakenGoblin from './dungeon.json';
+
+import {
+    Dungeon,
+    RoomItem,
+} from './types'
+
+
+
+const forsakenGoblin: Dungeon =
 {
     "dungeonName": "Tomb of the Forsaken Goblin",
     "dungeonDesc": "Find your way through catacombs below the ancient city of Glarven, the final resting place of the forsaken goblins.",
@@ -353,7 +365,29 @@
             "items": []
         }
     ],
-    "players": [
-        {}
-    ]
+    "players": []
+};
+
+
+const getItemsFromAllRooms = (dungeon: Dungeon): Array<RoomItem> => {
+    const { rooms } = dungeon;
+    let allItems: Array<RoomItem> = [];
+    for (let room of rooms) {
+        allItems = R.concat(allItems, room.items);
+    }
+    return allItems;
 }
+
+const getInventoryItems = (dungeon: Dungeon, itemNames: Array<string>): Array<RoomItem> => {
+    const allItems = getItemsFromAllRooms(dungeon);
+    let inventoryItems: Array<RoomItem> = [];
+    for (let item of allItems) {
+        if (R.includes(item.itemName, itemNames)) inventoryItems.push(item);
+    }
+    return inventoryItems;
+}
+
+const inventory = ['The Tome Of Lowrasil', 'The Gem of Sorrows',]
+const result = getInventoryItems(forsakenGoblin, inventory);
+console.log(JSON.stringify(result));
+
