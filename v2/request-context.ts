@@ -52,7 +52,7 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
     const lae = { user, name, value, text, action_ts, response_url, channel, team, actions: actions[0] };
     //console.log(lae);
     //console.log(JSON.stringify(JSON.parse(payload)));
-    //console.table(lae);
+    console.table(JSON.stringify(lae));
 
     Object.assign(requestCtx,
       {
@@ -91,6 +91,15 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
       Object.assign(requestCtx,
         {
           type: RequestType.Inventory,
+          channel: user.id,
+          user: user.id,
+        });
+    }
+
+      if (/resume/i.test(name)) {
+      Object.assign(requestCtx,
+        {
+          type: RequestType.Move,
           channel: user.id,
           user: user.id,
         });

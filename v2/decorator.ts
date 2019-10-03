@@ -87,7 +87,7 @@ export class ComponentDecorator {
     }
 
     private static decorateMove = ({ response, requestCtx }: any): any => {
-        const { roomName, room } = requestCtx;
+        const { roomName, room, inventory } = requestCtx;
         //console.log("ROOM", roomName, room)
         Object.assign(response, { type: "mrkdwn", text: roomName });
 
@@ -169,6 +169,7 @@ export class ComponentDecorator {
                 })
             }
 
+          if( inventory.length > 0){
             actions.push({
                 name: "inventory",
                 type: "button",
@@ -176,17 +177,18 @@ export class ComponentDecorator {
                 text: "i",
                 value: "inventory"
             });
+          }
 
-            Object.assign(attachments[0], { actions });
-            Object.assign(response, { attachments });
+          Object.assign(attachments[0], { actions });
+          Object.assign(response, { attachments });
         }
-        return response;
+      return response;
     }
 
     private static decorateInventory = ({ response, requestCtx }: any): any => {
         const { roomName, room, user, inventory } = requestCtx;
         console.log("decorateInventory", inventory)
-        Object.assign(response, { type: "mrkdwn", text: user });
+        Object.assign(response, { type: "mrkdwn", text: roomName });
         const blocks: Array<any> = [
             {
                 type: "section",
@@ -210,7 +212,7 @@ export class ComponentDecorator {
                         type: "section",
                         text: {
                             type: "mrkdwn",
-                            text: `:moneybag: *_${item.itemName}(x${item.itemValue})_*: ${item.itemDesc}`
+                            text: `:moneybag: *_${item.itemName} (x${item.itemValue})_*: ${item.itemDesc}`
                         }
                     });
             }
@@ -231,7 +233,7 @@ export class ComponentDecorator {
             color: "#C2061E",
             attachment_type: "default",
             actions: [{
-                name: "move",
+                name: "resume",
                 type: "button",
                 action_id: "resume",
                 text: "Resume",

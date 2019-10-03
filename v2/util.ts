@@ -38,12 +38,10 @@ export class StateUtil {
 
     public static getInventoryItems = (dungeon: Dungeon, itemNames: Array<string>): Array<RoomItem> => {
         const allItems = StateUtil.getItemsFromAllRooms(dungeon);
-        console.log("\n***getInventoryItems1:", JSON.stringify(allItems));
         let inventoryItems: Array<RoomItem> = [];
         for (let item of allItems) {
             if (R.includes(item.itemName, itemNames)) inventoryItems.push(item);
         }
-        console.log("\n***getInventoryItems2:", JSON.stringify(inventoryItems));
         return inventoryItems;
     }
 
@@ -86,7 +84,6 @@ export class StateUtil {
     }
 
     public static setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string, roomItem: RoomItem): void => {
-        //const {itemValue} = StateUtil.getRoomItem(dungeon, currentRoom, itemName);
         const player: Player = StateUtil.getPlayerState(dungeon, playerId);
         if (player) {
             player.gold += +roomItem.itemValue;
@@ -106,12 +103,18 @@ export class StateUtil {
     public static pickupItem = (dungeon: Dungeon, playerId: string, roomName: string, itemName: string) => {
         const roomItems = StateUtil.getRoomItems(dungeon, roomName);
         const roomItem: RoomItem = StateUtil.getItem(roomItems, itemName);
-        //const { itemName, itemValue } = roomItem;
         StateUtil.removeRoomItem(dungeon, roomName, itemName);
         StateUtil.setPlayerState(dungeon, roomName, playerId, roomItem);
-        //StateUtil.setPlayerState(dungeon, roomName, playerId, itemName, itemValue);
         console.log("\nPlayer stats:", dungeon.players)
     }
+
+export class Logger {
+  public static stringify = (header, body) => {
+    console.group(`\n***${header}***`);
+    console.log(JSON.stringify(body));
+  }
+}
+
 
     /*
 

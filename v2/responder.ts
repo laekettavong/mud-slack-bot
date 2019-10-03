@@ -3,6 +3,7 @@ import { StateUtil } from './util';
 import { ComponentDecorator } from './decorator'
 
 import {
+    Player,
     RequestContext,
     RoomItem,
     RequestType,
@@ -55,9 +56,13 @@ export class SlackSubscriber implements Subscriber {
     }
 
     private handleInteractiveComponent = (requestCtx: RequestContext): void => {
-        const { dungeon, roomName } = requestCtx;
+        const { dungeon, roomName, user } = requestCtx;
         const room = StateUtil.getRoomStateByName(dungeon.rooms, roomName);
-        Object.assign(requestCtx, { room });
+        Object.assign(requestCtx, { room, inventory: [] });
+        const player: Player = StateUtil.getPlayerState(dungeon, user);
+        if(player) {
+            Object.assign(requestCtx, { inventory: player.inventory });
+        }
         let response = this.getCommonResponse(requestCtx);
         response = ComponentDecorator.decorate({ response, requestCtx });
         this.sendReponse({ response, requestCtx });
@@ -75,7 +80,6 @@ export class SlackSubscriber implements Subscriber {
             channel: user, //using user for direct messaging
             as_user: true,
             callback_id: "myCallback",
-            username: "markdownbot",
             ts: timestamp
         }
     }
@@ -89,23 +93,17 @@ export class SlackSubscriber implements Subscriber {
     private handleInventory = (requestCtx: RequestContext): any => {
         const { dungeon, user } = requestCtx;
         const { inventory } = StateUtil.getPlayerState(dungeon, user);
-        //const roomItems: Array<RoomItem> = StateUtil.getInventoryItems(dungeon, inventory);
-        console.log("***handleInventory:", user, JSON.stringify(inventory));
+        //console.log("***handleInventory:", user, JSON.stringify(inventory));
         Object.assign(requestCtx, { inventory });
         let response = this.getCommonResponse(requestCtx);
         response = ComponentDecorator.decorate({ response, requestCtx });
         this.sendReponse({ response, requestCtx });
-
-        // T0DO fetch item description
-        //  roomItems?: Array<RoomItem>;
-        // Object.assign(requestCtx, { roomItems });
-        //console.log("***Player stats:", JSON.stringify(player));
     }
 
     private handleDrop = (requestCtx: RequestContext): any => { }
     private handleResume = (requestCtx: RequestContext): any => { }
 
-    private sendReponse = async ({ response, requestCtx }: any) => {
+    private sendReponse = ({ response, requestCtx }: any) => {
         const postActions = [RequestType.Chat, RequestType.Move, RequestType.Play, RequestType.Resume, RequestType.Start];
         const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
         //console.log("Slack POST URL2:", url, JSON.stringify(response));
@@ -121,10 +119,6 @@ export class SlackSubscriber implements Subscriber {
                 body: response
             });
         })();
-
-        console.log("isOK?", JSON.stringify(res));
-        // if (res && res.ok) {
-        //   requestCtx.ctx.status = 200;
-        // }
+        //console.log("isOK?", JSON.stringify(res));
     }
 }
