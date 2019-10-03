@@ -27,6 +27,26 @@ export class StateUtil {
         return R.merge({ directions: StateUtil.getRoomDirections(dungeonRoom) }, roomMetadata);
     }
 
+    public static getItemsFromAllRooms = (dungeon: Dungeon): Array<RoomItem> => {
+        const { rooms } = dungeon;
+        let allItems: Array<RoomItem> = [];
+        for (let room of rooms) {
+            allItems = R.concat(allItems, room.items);
+        }
+        return allItems;
+    }
+
+    public static getInventoryItems = (dungeon: Dungeon, itemNames: Array<string>): Array<RoomItem> => {
+        const allItems = StateUtil.getItemsFromAllRooms(dungeon);
+        console.log("\n***getInventoryItems1:", JSON.stringify(allItems));
+        let inventoryItems: Array<RoomItem> = [];
+        for (let item of allItems) {
+            if (R.includes(item.itemName, itemNames)) inventoryItems.push(item);
+        }
+        console.log("\n***getInventoryItems2:", JSON.stringify(inventoryItems));
+        return inventoryItems;
+    }
+
     public static getRoomItems = (dungeon: Dungeon, roomName: string) => {
         return R.filter(R.propEq('roomName', roomName))(dungeon.rooms)[0].items
     }
@@ -65,7 +85,37 @@ export class StateUtil {
         return player;
     }
 
-    public static setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string, itemName: string, gold: string): void => {
+    public static setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string, roomItem: RoomItem): void => {
+        //const {itemValue} = StateUtil.getRoomItem(dungeon, currentRoom, itemName);
+        const player: Player = StateUtil.getPlayerState(dungeon, playerId);
+        if (player) {
+            player.gold += +roomItem.itemValue;
+            player.currentRoom = currentRoom;
+            player.inventory.push(roomItem);
+        } else {
+            dungeon.players.push({
+                id: playerId,
+                gold: +roomItem.itemValue,
+                startRoom: currentRoom,
+                currentRoom,
+                inventory: [roomItem]
+            })
+        }
+    }
+
+    public static pickupItem = (dungeon: Dungeon, playerId: string, roomName: string, itemName: string) => {
+        const roomItems = StateUtil.getRoomItems(dungeon, roomName);
+        const roomItem: RoomItem = StateUtil.getItem(roomItems, itemName);
+        //const { itemName, itemValue } = roomItem;
+        StateUtil.removeRoomItem(dungeon, roomName, itemName);
+        StateUtil.setPlayerState(dungeon, roomName, playerId, roomItem);
+        //StateUtil.setPlayerState(dungeon, roomName, playerId, itemName, itemValue);
+        console.log("\nPlayer stats:", dungeon.players)
+    }
+
+    /*
+
+        public static setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string, itemName: string, gold: string): void => {
         //const {itemValue} = StateUtil.getRoomItem(dungeon, currentRoom, itemName);
         const player: Player = StateUtil.getPlayerState(dungeon, playerId);
         if (player) {
@@ -85,11 +135,25 @@ export class StateUtil {
 
     public static pickupItem = (dungeon: Dungeon, playerId: string, roomName: string, itmName: string) => {
         const roomItems = StateUtil.getRoomItems(dungeon, roomName);
-        const { itemName, itemValue } = StateUtil.getItem(roomItems, itmName);
+        const { itemName, itemValue, itemDesc, itemProperty } = StateUtil.getItem(roomItems, itmName);
         StateUtil.removeRoomItem(dungeon, roomName, itemName);
         StateUtil.setPlayerState(dungeon, roomName, playerId, itemName, itemValue);
         console.log("\nPlayer stats:", dungeon.players)
     }
+
+
+       public static getInventoryItems = (dungeon: Dungeon, itemNames: Array<string>): Array<RoomItem> => {
+        const allItems = StateUtil.getItemsFromAllRooms(dungeon);
+        console.log("\n***getInventoryItems1:", JSON.stringify(allItems));
+        let inventoryItems: Array<RoomItem> = [];
+        for (let item of allItems) {
+            if (R.includes(item.itemName, itemNames)) inventoryItems.push(item);
+        }
+        console.log("\n***getInventoryItems2:", JSON.stringify(inventoryItems));
+        return inventoryItems;
+    }
+    
+    */
 }
 
 export class DecoratorUtil {

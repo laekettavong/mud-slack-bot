@@ -48,7 +48,7 @@ export type Player = {
     gold: number;
     startRoom: string;
     currentRoom: string;
-    inventory: Array<string>
+    inventory: Array<RoomItem>
 }
 
 export type RequestContext = {
@@ -62,9 +62,10 @@ export type RequestContext = {
     roomName: string;
     itemName: string;
     timestamp: string;
-    responseUrl: string
-    challenge: string
-    text: string
+    responseUrl: string;
+    challenge: string;
+    text: string;
+    inventory?: Array<RoomItem>;
 }
 
 export enum RequestType {

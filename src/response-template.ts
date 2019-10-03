@@ -175,27 +175,34 @@ const inventory = {
     text: "test 123", //room.roomDesc,
     blocks: [
         {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": "*_Current inventory_*"
+            type: "section",
+            text: {
+                type: "mrkdwn",
+                text: "*_Current inventory_*"
             }
         },
         {
-            "type": "divider"
+            type: "divider"
         },
         {
-            "type": "section",
-            "text": {
+            type: "section",
+            text: {
                 "type": "mrkdwn",
-                "text": ":moneybag: *_The Gem of Sorrows ($50)_*: A tiny, blue gemstone that sparkles with fire, casting a troubling blue glow out into the room."
+                "text": ":moneybag: *_The Gem of Sorrows (x50)_*: A tiny, blue gemstone that sparkles with fire, casting a troubling blue glow out into the room."
             }
         },
         {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": ":moneybag: *_Mordua's Crown ($25)_*: A silver crown fashioned of delicate vines and leaves.  The legends say that Mordua's dying words were a spell that enchanted this crown to bring its owner luck."
+            type: "section",
+            text: {
+                type: "mrkdwn",
+                text: ":moneybag: *_Mordua's Crown (x25)_*: A silver crown fashioned of delicate vines and leaves.  The legends say that Mordua's dying words were a spell that enchanted this crown to bring its owner luck."
+            }
+        },
+        {
+            type: "section",
+            text: {
+                type: "mrkdwn",
+                text: ":moneybag: *_ x 75_*"
             }
         }
     ],

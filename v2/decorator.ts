@@ -18,14 +18,12 @@ export class ComponentDecorator {
             case RequestType.Move:
             case RequestType.Pickup:
                 return this.decorateMove({ response, requestCtx });
-            case RequestType.Resume:
-                break;
             case RequestType.Inventory:
-                break;
+                return this.decorateInventory({ response, requestCtx });
+            case RequestType.Resume:
             case RequestType.Drop:
                 break;
             default:
-                // chat
                 return this.decorateChat({ response, requestCtx });
         }
     }
@@ -95,6 +93,7 @@ export class ComponentDecorator {
 
         // add room description/image
         const blocks: Array<any> = [
+            { type: "divider" },
             {
                 type: "section",
                 text: {
@@ -129,7 +128,7 @@ export class ComponentDecorator {
                         type: "section",
                         text: {
                             type: "mrkdwn",
-                            text: `:moneybag: *_${item.itemName}_ ($${item.itemValue})*\n${item.itemDesc}`
+                            text: `:moneybag: *_${item.itemName}_ (${item.itemValue} gold coins)*\n${item.itemDesc}`
                         },
                         accessory: {
                             type: "button",
@@ -169,15 +168,79 @@ export class ComponentDecorator {
                     value: roomName
                 })
             }
+
+            actions.push({
+                name: "inventory",
+                type: "button",
+                action_id: "inventory",
+                text: "i",
+                value: "inventory"
+            });
+
             Object.assign(attachments[0], { actions });
             Object.assign(response, { attachments });
         }
         return response;
     }
 
-    private static decoratePickup = ({ response, requestCtx }: any): any => {
-        const { foo } = response;
-        return {};
+    private static decorateInventory = ({ response, requestCtx }: any): any => {
+        const { roomName, room, user, inventory } = requestCtx;
+        console.log("decorateInventory", inventory)
+        Object.assign(response, { type: "mrkdwn", text: user });
+        const blocks: Array<any> = [
+            {
+                type: "section",
+                text: {
+                    type: "mrkdwn",
+                    text: "*_Current inventory_*"
+                }
+            },
+            {
+                type: "divider"
+            }
+        ];
+
+        if (inventory.length > 0) {
+            let gold = 0;
+            for (let item of inventory) {
+
+                gold += +item.itemValue;
+                blocks.push(
+                    {
+                        type: "section",
+                        text: {
+                            type: "mrkdwn",
+                            text: `:moneybag: *_${item.itemName}(x${item.itemValue})_*: ${item.itemDesc}`
+                        }
+                    });
+            }
+
+            blocks.push(
+                {
+                    type: "section",
+                    text: {
+                        type: "mrkdwn",
+                        text: `:moneybag: *_ x ${gold}_*`
+                    }
+                });
+        }
+        Object.assign(response, { blocks });
+        const attachments: Array<any> = [{
+            text: "Let's continue playing!",
+            callback_id: "myCallback", //TODO: callbackId from Slack
+            color: "#C2061E",
+            attachment_type: "default",
+            actions: [{
+                name: "move",
+                type: "button",
+                action_id: "resume",
+                text: "Resume",
+                value: "resume"
+            }]
+        }];
+        Object.assign(response, { attachments });
+        console.log("\***decorateInventory", JSON.stringify(response))
+        return response;
     }
 
     private static decorateResume = ({ response, requestCtx }: any): any => {
@@ -185,10 +248,7 @@ export class ComponentDecorator {
         return {};
     }
 
-    private static decorateInventory = ({ response, requestCtx }: any): any => {
-        const { foo } = response;
-        return {};
-    }
+
 
     private static decorateDrop = ({ response, requestCtx }: any): any => {
         const { foo } = response;
