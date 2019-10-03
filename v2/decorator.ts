@@ -16,9 +16,8 @@ export class ComponentDecorator {
                 return this.decoratePlay({ response, requestCtx });
             case RequestType.Start:
             case RequestType.Move:
-                return this.decorateMove({ response, requestCtx });
             case RequestType.Pickup:
-                break;
+                return this.decorateMove({ response, requestCtx });
             case RequestType.Resume:
                 break;
             case RequestType.Inventory:
@@ -96,12 +95,11 @@ export class ComponentDecorator {
 
         // add room description/image
         const blocks: Array<any> = [
-          { type: "divider" },
             {
                 type: "section",
                 text: {
                     type: "mrkdwn",
-                    text: `\n*_${room.roomName}_*\n${room.roomDesc}`
+                    text: `*_${room.roomName}_*\n${room.roomDesc}`
                 },
                 accessory: {
                     type: "image",
@@ -123,7 +121,7 @@ export class ComponentDecorator {
                     ]
                 }
             );
-            blocks.push({ type: "divider" });
+            //blocks.push({ type: "divider" });
 
             for (let item of items) {
                 blocks.push(

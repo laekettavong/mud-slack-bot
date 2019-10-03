@@ -42,15 +42,15 @@ export class StateUtil {
     }
 
     public static removeRoomItem = (dungeon: Dungeon, roomName: string, itemName: string): void => {
-      let roomItems = StateUtil.getRoomItems(dungeon, roomName);
-      for (let item of roomItems) {
-        if (item.itemName === itemName)  {
-          roomItems = R.reject(R.propEq('itemName', itemName), roomItems);
-          const indx = R.findIndex(R.propEq('roomName', roomName))(dungeon.rooms);
-          dungeon.rooms[indx].items = roomItems;
-          break;
+        let roomItems = StateUtil.getRoomItems(dungeon, roomName);
+        for (let item of roomItems) {
+            if (item.itemName === itemName) {
+                roomItems = R.reject(R.propEq('itemName', itemName), roomItems);
+                const indx = R.findIndex(R.propEq('roomName', roomName))(dungeon.rooms);
+                dungeon.rooms[indx].items = roomItems;
+                break;
+            }
         }
-      }
     }
 
     public static getPlayerState = (dungeon: Dungeon, playerId: string): Player => {
@@ -66,7 +66,7 @@ export class StateUtil {
     }
 
     public static setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string, itemName: string, gold: string): void => {
-      //const {itemValue} = StateUtil.getRoomItem(dungeon, currentRoom, itemName);
+        //const {itemValue} = StateUtil.getRoomItem(dungeon, currentRoom, itemName);
         const player: Player = StateUtil.getPlayerState(dungeon, playerId);
         if (player) {
             player.gold += +gold;
@@ -84,11 +84,11 @@ export class StateUtil {
     }
 
     public static pickupItem = (dungeon: Dungeon, playerId: string, roomName: string, itmName: string) => {
-      const roomItems = StateUtil.getRoomItems(dungeon, roomName);
-      const { itemName, itemValue } = StateUtil.getItem(roomItems, itmName);
-      StateUtil.removeRoomItem(dungeon, roomName, itemName);
-      StateUtil.setPlayerState(dungeon, roomName, playerId, itemName, itemValue);
-      console.log(dungeon.players)
+        const roomItems = StateUtil.getRoomItems(dungeon, roomName);
+        const { itemName, itemValue } = StateUtil.getItem(roomItems, itmName);
+        StateUtil.removeRoomItem(dungeon, roomName, itemName);
+        StateUtil.setPlayerState(dungeon, roomName, playerId, itemName, itemValue);
+        console.log("\nPlayer stats:", dungeon.players)
     }
 }
 
