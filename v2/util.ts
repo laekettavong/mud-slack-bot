@@ -108,13 +108,6 @@ export class StateUtil {
         console.log("\nPlayer stats:", dungeon.players)
     }
 
-export class Logger {
-  public static stringify = (header, body) => {
-    console.group(`\n***${header}***`);
-    console.log(JSON.stringify(body));
-  }
-}
-
 
     /*
 
@@ -179,3 +172,148 @@ export class DecoratorUtil {
         }
     }
 }
+
+export const AiLogger = (() => {
+
+    enum Color {
+        Red = '\x1b[31m%s\x1b[0m',
+        Green = '\x1b[32m%s\x1b[0m',
+        Yellow = '\x1b[33m%s\x1b[0m',
+        Blue = '\x1b[34m%s\x1b[0m',
+        Cyan = '\x1b[35m%s\x1b[0m',
+        LightBlue = '\x1b[36m%s\x1b[0m',
+        White = '\x1b[37m%s\x1b[0m'
+    }
+
+    let _toggle: boolean = true;
+
+    const _endGroup = (): void => {
+        console.groupEnd();
+        console.log('\n');
+    }
+
+    const _blank = (): void => {
+        console.log('\n');
+    }
+
+
+    class StaticLogger {
+        public static toggle = () => {
+            _toggle = !_toggle;
+        }
+
+        public static header = (header: string, isOn: boolean = true): void => {
+            if (_toggle && isOn) console.group(`\n***[ ${header} ]******************`);
+        }
+
+        public static withHeader = (header: string, body: any, isOn: boolean = true): void => {
+            if (_toggle && isOn) {
+                StaticLogger.header(header);
+                StaticLogger.stringnify(body);
+                _endGroup();
+            }
+        }
+
+        public static stringnify = (body: any, isOn: boolean = true): void => {
+            if (_toggle && isOn) console.log(JSON.stringify(body));
+        }
+
+        public static tablize = (body: any, isOn: boolean = true): void => {
+            if (_toggle && isOn) console.table(JSON.parse(JSON.stringify(body)));
+        }
+
+        public static trace = (...args: any[]): void => {
+            if (_toggle) {
+                StaticLogger.header('Tracing state');
+                for (let arg of args) {
+                    console.log(arg)
+                }
+                _endGroup();
+            }
+        }
+    };
+
+    type LoggerConstructor = {
+        name: string;
+        color: string;
+    }
+
+    type FunctionParams = {
+        header?: string;
+        color?: string;
+        isOn?: boolean;
+        body?: any;
+    }
+
+    class Logger {
+        private name: string;
+        private color: string;
+        private flick: boolean = true;
+
+        constructor({ name, color = Color.White }: LoggerConstructor) {
+            this.name = name;
+            this.color = color;
+        }
+
+        public toggle = (): void => {
+            this.flick = !this.flick;
+        }
+
+        public header = ({ header, color, isOn = true }: FunctionParams): void => {
+            if (this.flick && isOn) {
+                color = color || this.color;
+                console.group(color, `***[ ${header} ]******************`);
+            }
+        }
+
+        public withHeader = ({ header, body, color, isOn = true }: FunctionParams): void => {
+            if (this.flick && isOn) {
+                color = color || this.color;
+                this.header({ header, color, isOn });
+                this.stringnify({ body, color, isOn });
+            }
+        }
+
+        public stringnify = ({ body, color, isOn = true }: FunctionParams): void => {
+            if (this.flick && isOn) {
+                color = color || this.color;
+                console.log(color, JSON.stringify(body));
+                this.endGroup();
+            }
+        }
+
+        public tablize = ({ body, isOn = true }: FunctionParams): void => {
+            if (this.flick && isOn) {
+                console.table(JSON.parse(JSON.stringify(body)));
+                this.endGroup();
+            }
+        }
+
+        public trace = (...args: any[]): void => {
+            if (this.flick) {
+                this.header({ header: 'Tracing state' });
+                for (let arg of args) {
+                    console.log(this.color, arg)
+                }
+                this.endGroup();
+            }
+        }
+
+        private endGroup = (): void => {
+            _endGroup();
+        }
+
+        private blank = (): void => {
+            _blank();
+        }
+    }
+
+    const instantiate = ({ name, color }: LoggerConstructor) => {
+        return new Logger({ name, color });
+    }
+
+    return {
+        _: StaticLogger,
+        instantiate
+    }
+})();
