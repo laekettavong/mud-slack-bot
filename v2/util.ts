@@ -183,9 +183,10 @@ export const AiLogger = (() => {
 
     type FunctionParams = {
         header?: string;
+        body?: any;
+        msg?: any;
         color?: string;
         isOn?: boolean;
-        body?: any;
     }
 
     enum Color {
@@ -202,7 +203,7 @@ export const AiLogger = (() => {
     let _color: Color = Color.White;
 
     const _header = (header: string, color: string): void => {
-        console.group(color, `\n***[ ${header} ]******************[ ${moment().format('lll')} ]***`);
+        console.group(color, `\n***[ ${header} ]******************[ ${moment().format()} ]***`);
     }
 
     const _withHeader = (header: string, body: any, color: string): void => {
@@ -217,11 +218,21 @@ export const AiLogger = (() => {
     }
 
     const _tablize = (body: any): void => {
-        console.table(JSON.parse(JSON.stringify(body)));
+        try {
+            console.table(JSON.parse(JSON.stringify(body)));
+            _endGroup();
+        } catch (error) {
+            console.log(Color.Red, 'Error, cannot parse JSON!')
+        }
+    }
+
+    const _trace = (msg: any, color: string): void => {
+        _header('Tracing state', color);
+        console.log(color, msg)
         _endGroup();
     }
 
-    const _trace = (...args: any[]): void => {
+    const _traceAll = (...args: any[]): void => {
         _header('Tracing state', _color);
         for (let indx in args) {
             console.log(_color, `(${+indx + 1}) ${args[indx]}`)
@@ -261,8 +272,12 @@ export const AiLogger = (() => {
             if (_toggle && isOn) _tablize(body);
         }
 
-        public static trace = (...args: any[]): void => {
-            if (_toggle) _trace(...args);
+        public static trace = ({ msg, color, isOn = true }: FunctionParams): void => {
+            if (_toggle && isOn) _trace(msg, color || _color);
+        }
+
+        public static traceAll = (...args: any[]): void => {
+            if (_toggle) _traceAll(...args);
         }
     };
 
@@ -296,7 +311,7 @@ export const AiLogger = (() => {
             if (this.flick && isOn) _tablize(body);
         }
 
-        public trace = (...args: any[]): void => {
+        public traceAll = (...args: any[]): void => {
             if (this.flick) {
                 _header('Tracing state', this.color);
                 for (let indx in args) {

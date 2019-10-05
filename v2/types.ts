@@ -1,13 +1,15 @@
 export type Dungeon = {
+    dungeonId?: string; //TODO..make quired
     dungeonName: string;
     dungeonDesc: string;
     helpText: string;
     dungeonImg: string;
-    rooms: Array<any>; // Array<DungeonRoom>
+    rooms: Array<DungeonRoomMetadata>; // Array<DungeonRoom>
     players: Array<Player>;  //Array<Player>;
 }
 
 export type DungeonRoomMetadata = {
+    roomId?: string; //TODO..make quired
     roomName: string;
     roomDesc: string;
     roomImg: string;
@@ -37,6 +39,7 @@ export type RoomDirectionState = {
 export type DungeonRoomState = DungeonRoomMetadata & RoomDirectionState;
 
 export type RoomItem = {
+    itemId?: string; //TODO..make quired
     itemName: string;
     itemDesc: string;
     itemValue: string;

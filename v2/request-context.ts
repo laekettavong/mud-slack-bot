@@ -5,20 +5,64 @@ import {
   RequestType
 } from './types';
 
-//   console.log("\nXXX")
+import { AiLogger } from './util';
+
+/*
+export const RequestHandler = (() => {
+
+  return Object.freeze(
+    class RequestHandler {
+      public static handleRequest = (ctx: any, forsakenGoblin: any) => {
+        //const action =  name || value || text || text ||;
+
+      }
+
+    }
+  );
+})();
+*/
+
+/*
+
+class Decorate {
+    static one(msg){
+        console.log(`This is decorateOne: ${msg}`);
+        return 'This is one';
+    }
+    
+    static two(msg){
+        console.log(`This is decorateTwo: ${msg}`);
+        return 'This is two';
+    }
+    
+        static three(msg){
+        console.log(`This is decorateThree: ${msg}`);
+        return 'This is three';
+    }
+}
+
+    const map = new Map();
+    map.set('one', Decorate.one);
+    map.set('two', Decorate.two);
+    map.set('three', Decorate.three);
+    
+const decorate = (type, msg) => {
+    const whichOne = map.get(type);
+    return whichOne(msg)
+}
+
+const foo = decorate('two', 'Hi, I\'m Lae.')
+console.log(foo)
+*/
+
+
+
 export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => {
   const { body } = ctx.request;
   const { challenge, event, payload } = body;
   //console.log("Entrance", bot_id, client_msg_id, JSON.stringify(payload), '\n');
   //console.log("Entrance", JSON.stringify(ctx), '\n');
 
-  // (1) when user click on 'Start' button, event is undefined
-
-  /*
-
- 
-
-  */
 
   let requestCtx: RequestContext = {
     ctx,
@@ -46,7 +90,7 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
   }
 
   if (!event && payload) { // get user response from IC
-    console.group("**Get user response from IC");
+    //AiConsole.withHeader('Get user response from IC')
     const { actions, channel, team, user, response_url, message } = JSON.parse(payload);
     const { name, value, text, action_ts } = actions[0];
     const lae = { user, name, value, text, action_ts, response_url, channel, team, actions: actions[0] };
@@ -96,7 +140,7 @@ export const handleRequest = (ctx: any, forsakenGoblin: any): RequestContext => 
         });
     }
 
-      if (/resume/i.test(name)) {
+    if (/resume/i.test(name)) {
       Object.assign(requestCtx,
         {
           type: RequestType.Move,

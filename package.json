@@ -7,7 +7,8 @@
     "start-devxx": "nodemon ./src/app.ts",
     "start-v2": "nodemon --watch 'v2/**/*' -e ts --exec ts-node ./v2/app.ts",
     "start": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./src/app.ts",
-    "start-dev": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./v2/ramda3.ts"
+    "start-dev": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./v2/ramda3.ts",
+    "start-man": "nodemon --watch 'v2/**/*' -e ts --exec ts-node ./v2/manager.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,7 @@
     "@types/koa-router": "^7.0.42",
     "@types/ramda": "^0.26.22",
     "@types/request-promise": "^4.1.44",
+    "@types/uniqid": "^4.1.3",
     "dotenv": "^8.1.0",
     "knex": "^0.19.4",
     "koa": "^2.8.1",
@@ -32,6 +34,7 @@
     "request-promise": "^4.2.4",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.6.3",
+    "uniqid": "^5.0.3"
   }
 }

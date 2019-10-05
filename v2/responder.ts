@@ -1,5 +1,8 @@
 import * as R from 'ramda';
-import { StateUtil } from './util';
+import {
+    StateUtil,
+    AiLogger
+} from './util';
 import { ComponentDecorator } from './decorator'
 
 import {
@@ -13,33 +16,66 @@ import {
 
 export class SlackSubscriber implements Subscriber {
     private httpHandler: any;
+    private handlerMap: Map<string, Function>;
 
     constructor(httpHandler: any) {
         this.httpHandler = httpHandler;
+        this.mapHandlers();
     }
+
+    private mapHandlers() {
+        this.handlerMap = new Map();
+        this.handlerMap.set(RequestType.Move, this.handleInteractiveComponent);
+        this.handlerMap.set(RequestType.Play, this.handleInteractiveComponent);
+        this.handlerMap.set(RequestType.Start, this.handleInteractiveComponent);
+        this.handlerMap.set(RequestType.Pickup, this.handlePickup);
+        this.handlerMap.set(RequestType.Inventory, this.handleInventory);
+        this.handlerMap.set(RequestType.Chat, this.handleChat);
+        this.handlerMap.set(RequestType.Verify, this.handleChallenge);
+    }
+
 
     public respond(requestCtx: RequestContext): void {
         const { ctx, type, challenge, dungeon, itemName, roomName } = requestCtx
-        console.log("XXX-IC:", type, roomName, itemName)
-        switch (requestCtx.type) {
-            case RequestType.Move:
-            case RequestType.Play:
-            case RequestType.Start:
-                this.handleInteractiveComponent(requestCtx);
-                break;
-            case RequestType.Pickup:
-                this.handlePickup(requestCtx);
-                break;
-            case RequestType.Inventory:
-                this.handleInventory(requestCtx);
-                break;
-            case RequestType.Chat:
-                this.handleChat(requestCtx);
-                break;
-            case RequestType.Verify:
-            default: // Slack bot endpoint verification, just send back 'challenge token
-                this.handleChallenge(requestCtx);
-        }
+        const lae = { first: "Lae", last: "Kettavong", address: "1188 Louise Way", age: 45, title: "Software Engineer" }
+        // AiLogger._.withHeader({ header: "SlackSubscriber.respond", color: AiLogger.Color.Red, body: { type, roomName, itemName } });
+        // AiLogger.green().withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
+        // AiLogger.yellow().withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
+        // AiLogger.red().withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
+        // AiLogger.yellow().trace("one", "two", "three", "four");
+        // AiLogger.cyan().trace("one", "two", "three", "four");
+        // AiLogger.lightblue().stringify({ body: lae });
+        // AiLogger.blue().tablize({ body: lae });
+
+        // const logger = AiLogger.makeYellowLogger();
+        // const logger2 = AiLogger.makeCyanLogger();
+
+        // logger.withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
+        // logger.trace("one", "two", "three", "four");
+        // logger2.trace("one", "two", "three", "four");
+        // logger.stringify({ body: lae });
+        // logger.tablize({ body: lae });
+
+        this.handlerMap.get(type)(requestCtx);
+        // switch (requestCtx.type) {
+        //     case RequestType.Move:
+        //     case RequestType.Play:
+        //     case RequestType.Start:
+        //         this.handleInteractiveComponent(requestCtx);
+        //         break;
+        //     case RequestType.Pickup:
+        //         this.handlePickup(requestCtx);
+        //         break;
+        //     case RequestType.Inventory:
+        //         this.handleInventory(requestCtx);
+        //         break;
+        //     case RequestType.Chat:
+        //         this.handleChat(requestCtx);
+        //         break;
+        //     case RequestType.Verify:
+        //     default: // Slack bot endpoint verification, just send back 'challenge token
+        //         this.handleChallenge(requestCtx);
+        // }
 
     }
 
@@ -60,7 +96,7 @@ export class SlackSubscriber implements Subscriber {
         const room = StateUtil.getRoomStateByName(dungeon.rooms, roomName);
         Object.assign(requestCtx, { room, inventory: [] });
         const player: Player = StateUtil.getPlayerState(dungeon, user);
-        if(player) {
+        if (player) {
             Object.assign(requestCtx, { inventory: player.inventory });
         }
         let response = this.getCommonResponse(requestCtx);

@@ -18,13 +18,13 @@ const slackPublisher = new SlackPublisher();
 slackPublisher.add(new SlackSubscriber(rp))
 
 router.get('/bot', async (ctx, next) => {
-    ctx.body = 'Hello world!'
+  ctx.body = 'Hello world!'
 });
 
 router.post('/bot', async (ctx, next) => {
-    ctx.status = 200;
-    ctx.body = '';
-    slackPublisher.notify(handleRequest(ctx, forsakenGoblin))
+  ctx.status = 200;
+  ctx.body = '';
+  slackPublisher.notify(handleRequest(ctx, forsakenGoblin))
 });
 
 app.use(router.routes()).use(router.allowedMethods());

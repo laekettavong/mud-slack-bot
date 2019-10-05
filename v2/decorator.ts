@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import {
-    StateUtil,
-    DecoratorUtil
+    DecoratorUtil,
+    AiLogger
 } from './util';
 
 import {
@@ -169,20 +169,20 @@ export class ComponentDecorator {
                 })
             }
 
-          if( inventory.length > 0){
-            actions.push({
-                name: "inventory",
-                type: "button",
-                action_id: "inventory",
-                text: "i",
-                value: "inventory"
-            });
-          }
+            if (inventory.length > 0) {
+                actions.push({
+                    name: "inventory",
+                    type: "button",
+                    action_id: "inventory",
+                    text: "i",
+                    value: "inventory"
+                });
+            }
 
-          Object.assign(attachments[0], { actions });
-          Object.assign(response, { attachments });
+            Object.assign(attachments[0], { actions });
+            Object.assign(response, { attachments });
         }
-      return response;
+        return response;
     }
 
     private static decorateInventory = ({ response, requestCtx }: any): any => {
