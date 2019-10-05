@@ -23,6 +23,7 @@
     "koa": "^2.8.1",
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
+    "moment": "^2.24.0",
     "nodemon": "^1.19.2",
     "partial.lenses": "^14.17.0",
     "pg": "^7.12.1",

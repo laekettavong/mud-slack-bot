@@ -1,4 +1,5 @@
 import * as R from 'ramda';
+import moment from 'moment'
 
 import {
     DungeonRoom,
@@ -175,64 +176,6 @@ export class DecoratorUtil {
 
 export const AiLogger = (() => {
 
-    enum Color {
-        Red = '\x1b[31m%s\x1b[0m',
-        Green = '\x1b[32m%s\x1b[0m',
-        Yellow = '\x1b[33m%s\x1b[0m',
-        Blue = '\x1b[34m%s\x1b[0m',
-        Cyan = '\x1b[35m%s\x1b[0m',
-        LightBlue = '\x1b[36m%s\x1b[0m',
-        White = '\x1b[37m%s\x1b[0m'
-    }
-
-    let _toggle: boolean = true;
-
-    const _endGroup = (): void => {
-        console.groupEnd();
-        console.log('\n');
-    }
-
-    const _blank = (): void => {
-        console.log('\n');
-    }
-
-
-    class StaticLogger {
-        public static toggle = () => {
-            _toggle = !_toggle;
-        }
-
-        public static header = (header: string, isOn: boolean = true): void => {
-            if (_toggle && isOn) console.group(`\n***[ ${header} ]******************`);
-        }
-
-        public static withHeader = (header: string, body: any, isOn: boolean = true): void => {
-            if (_toggle && isOn) {
-                StaticLogger.header(header);
-                StaticLogger.stringnify(body);
-                _endGroup();
-            }
-        }
-
-        public static stringnify = (body: any, isOn: boolean = true): void => {
-            if (_toggle && isOn) console.log(JSON.stringify(body));
-        }
-
-        public static tablize = (body: any, isOn: boolean = true): void => {
-            if (_toggle && isOn) console.table(JSON.parse(JSON.stringify(body)));
-        }
-
-        public static trace = (...args: any[]): void => {
-            if (_toggle) {
-                StaticLogger.header('Tracing state');
-                for (let arg of args) {
-                    console.log(arg)
-                }
-                _endGroup();
-            }
-        }
-    };
-
     type LoggerConstructor = {
         name: string;
         color: string;
@@ -245,7 +188,180 @@ export const AiLogger = (() => {
         body?: any;
     }
 
+    enum Color {
+        Red = '\x1b[31m%s\x1b[0m',
+        Green = '\x1b[32m%s\x1b[0m',
+        Yellow = '\x1b[33m%s\x1b[0m',
+        Blue = '\x1b[34m%s\x1b[0m',
+        Cyan = '\x1b[35m%s\x1b[0m',
+        LightBlue = '\x1b[36m%s\x1b[0m',
+        White = '\x1b[37m%s\x1b[0m'
+    }
+
+    let _toggle: boolean = true;
+    let _color: Color = Color.White;
+
+    const _header = (header: string, color: string): void => {
+        console.group(color, `\n***[ ${header} ]******************[ ${moment().format('lll')} ]***`);
+    }
+
+    const _withHeader = (header: string, body: any, color: string): void => {
+        _header(header, color);
+        _stringify(body, color);
+        _endGroup();
+    }
+
+    const _stringify = (body: any, color: string): void => {
+        console.log(color, JSON.stringify(body));
+        _endGroup();
+    }
+
+    const _tablize = (body: any): void => {
+        console.table(JSON.parse(JSON.stringify(body)));
+        _endGroup();
+    }
+
+    const _trace = (...args: any[]): void => {
+        _header('Tracing state', _color);
+        for (let indx in args) {
+            console.log(_color, `(${+indx + 1}) ${args[indx]}`)
+        }
+        _endGroup();
+    }
+
+    const _endGroup = (): void => {
+        console.groupEnd();
+        console.log();
+    }
+
+    const _blank = (): void => {
+        console.log();
+    }
+
+    class StaticLogger {
+        public static toggle = () => {
+            _toggle = !_toggle;
+        }
+
+        public static header = ({ header, color, isOn = true }: FunctionParams): void => {
+            if (_toggle && isOn) {
+                _header(header, color || _color);
+            }
+        }
+
+        public static withHeader = ({ header, body, color, isOn = true }: FunctionParams): void => {
+            if (_toggle && isOn) _withHeader(header, body, color || _color);
+        }
+
+        public static stringify = ({ body, color, isOn = true }: FunctionParams): void => {
+            if (_toggle && isOn) _stringify(body, color || _color);
+        }
+
+        public static tablize = ({ body, isOn = true }: FunctionParams): void => {
+            if (_toggle && isOn) _tablize(body);
+        }
+
+        public static trace = (...args: any[]): void => {
+            if (_toggle) _trace(...args);
+        }
+    };
+
     class Logger {
+        private name: string;
+        private color: string;
+        private flick: boolean = true;
+
+        constructor({ name = "AiLogger", color = Color.White }: LoggerConstructor) {
+            this.name = name;
+            this.color = color;
+        }
+
+        public toggle = (): void => {
+            this.flick = !this.flick;
+        }
+
+        public header = ({ header, color, isOn = true }: FunctionParams): void => {
+            if (this.flick && isOn) _header(header, color || this.color);
+        }
+
+        public withHeader = ({ header, body, color, isOn = true }: FunctionParams): void => {
+            if (this.flick && isOn) _withHeader(header, body, color || this.color);
+        }
+
+        public stringify = ({ body, color, isOn = true }: FunctionParams): void => {
+            if (this.flick && isOn) _stringify(body, color || this.color);
+        }
+
+        public tablize = ({ body, isOn = true }: FunctionParams): void => {
+            if (this.flick && isOn) _tablize(body);
+        }
+
+        public trace = (...args: any[]): void => {
+            if (this.flick) {
+                _header('Tracing state', this.color);
+                for (let indx in args) {
+                    console.log(this.color, `(${+indx + 1}) ${args[indx]}`)
+                }
+                _endGroup();
+            }
+        }
+
+        private endGroup = (): void => {
+            _endGroup();
+        }
+
+        private blank = (): void => {
+            _blank();
+        }
+    }
+
+    const instantiate = ({ name, color }: LoggerConstructor) => {
+        return new Logger({ name, color });
+    }
+
+    return {
+        Color,
+        _: StaticLogger,
+        red: () => { _color = Color.Red; return StaticLogger },
+        green: () => { _color = Color.Green; return StaticLogger },
+        yellow: () => { _color = Color.Yellow; return StaticLogger },
+        blue: () => { _color = Color.Blue; return StaticLogger },
+        cyan: () => { _color = Color.Cyan; return StaticLogger },
+        lightblue: () => { _color = Color.LightBlue; return StaticLogger },
+        white: () => { _color = Color.White; return StaticLogger },
+        instantiate,
+        makeRedLogger: (name?: string) => instantiate({ name, color: Color.Red }),
+        makeGreenLogger: (name?: string) => instantiate({ name, color: Color.Green }),
+        makeYellowLogger: (name?: string) => instantiate({ name, color: Color.Yellow }),
+        makeBlueLogger: (name?: string) => instantiate({ name, color: Color.Blue }),
+        makeCyanLogger: (name?: string) => instantiate({ name, color: Color.Cyan }),
+        makeLightBlueLogger: (name?: string) => instantiate({ name, color: Color.LightBlue }),
+        makeWhiteLogger: (name: string) => instantiate({ name, color: Color.White })
+    }
+})();
+
+
+
+
+/*
+
+const lae = { first: "Lae", last: "Kettavong", address: "1188 Louise Way", age: 45, title: "Software Engineer" }
+AiLogger._.withHeader({ header: "SlackSubscriber.respond", color: AiLogger.Color.Red, body: { type, roomName, itemName } });
+AiLogger.green().withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
+AiLogger.yellow().withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
+AiLogger.red().withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
+AiLogger.yellow().trace("one", "two", "three", "four");
+AiLogger.cyan().trace("one", "two", "three", "four");
+AiLogger.lightblue().stringify({ body: lae });
+AiLogger.blue().tablize({ body: lae });
+
+const logger = AiLogger.makeYellowLogger();
+logger.withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
+logger.trace("one", "two", "three", "four");
+logger.stringify({ body: lae });
+logger.tablize({ body: lae });
+
+ class Logger {
         private name: string;
         private color: string;
         private flick: boolean = true;
@@ -308,12 +424,5 @@ export const AiLogger = (() => {
         }
     }
 
-    const instantiate = ({ name, color }: LoggerConstructor) => {
-        return new Logger({ name, color });
-    }
 
-    return {
-        _: StaticLogger,
-        instantiate
-    }
-})();
+*/
