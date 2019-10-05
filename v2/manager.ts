@@ -3,6 +3,14 @@ import uniqid from 'uniqid';
 import * as R from 'ramda';
 
 import {
+  Item,
+  Room,
+  Player,
+  Underworld,
+  UnderworldFactory
+} from './model';
+
+import {
   Dungeon,
   DungeonRoomMetadata,
   RoomDirectionState,
@@ -29,134 +37,51 @@ import { AiLogger } from './util';
 //   };
 // })();
 
-const StateManage = (() => {
-  let instance: Dungeon;
+const DungeonMaster = (() => {
+  let _instance: MudGame;
 
+  class MudGame {
+    private underworld: Underworld;
 
+    constructor(dungeon: Dungeon) {
+      this.underworld = UnderworldFactory.getInstance(dungeon);
+    }
+
+    public play(playerId: string, playerName: string = 'None'): void {
+      const player = this.underworld.findOrAddPlayer(playerId, playerName);
+    }
+
+    public getCurrentRoom(player: Player): Room {
+      return this.underworld.getRoom(player.getCurrentRoomId());
+    }
+
+    public pickupItem(room: Room, player: Player, item: Item): void {
+      room.removeItem(item);
+      player.pickupItem(item);
+    }
+
+    public dropItem(room: Room, player: Player, item: Item): void {
+      room.addItem(item);
+      player.dropItem(item);
+    }
+
+  }
+
+  const getInstance = (dungeon: Dungeon): MudGame => {
+    if (!_instance) {
+      _instance = new MudGame(dungeon);
+      delete _instance.constructor; // no more instances
+    }
+    return _instance;
+  }
+
+  return {
+    getInstance
+  }
 })();
 
-class Room {
-  private id: string;
-  private name: string;
-  private description: string;
-  private image: string;
-  private directions: Map<string, string>;
-  private items: Map<string, Item>;
-
-  constructor(id: string, room: DungeonRoomMetadata) {
-    const { roomName, roomDesc, roomImg } = room;
-    this.id = id;
-    this.name = room.roomName;
-    this.description = room.roomDesc;
-    this.image = room.roomImg;
-    this.initDirections(room);
-    this.initItems(room);
-  }
-
-  private initDirections(room: DungeonRoomMetadata): void {
-    const directions: RoomDirectionState = R.pickAll(['north', 'south', 'east', 'west', 'up', 'down'])(room);
-    const dirs = R.reject((n: string) => R.isEmpty(n))(directions);
-    const dirArray = R.pipe(R.toPairs, R.map(R.apply(R.objOf)))(dirs);
-    this.directions = new Map();
-
-    //AiLogger.green().toggle();
-    for (let dir of dirArray) {
-      this.directions.set(Object.keys(dir)[0], Object.values(dir)[0])
-      AiLogger.green().traceAll(Object.keys(dir)[0], Object.values(dir)[0]);
-    }
-    AiLogger.green().withHeader({ header: "Room#setDirections", body: { dirArray } });
-  }
-
-  private initItems(room: DungeonRoomMetadata): void {
-    this.items = new Map();
-    for (let item of room.items) {
-      const { itemId } = item;
-      this.items.set(itemId, new Item(item))
-    }
-  }
-
-  public getDirections(): Map<string, string> {
-    return this.directions;
-  }
-
-  public removeItem(itemId: string): boolean {
-    return this.items.delete(itemId);
-  }
-
-  public addItem(itemId: string, item: Item): void {
-    this.items.set(itemId, item);
-  }
-
-  public getItems(): Map<string, Item> {
-    return this.items;
-  }
-
-  public stringify(): string {
-    let directions: any = []
-    this.directions.forEach((value, key) => {
-      directions.push({ key, value });
-    });
-    return JSON.stringify(this);
-  }
-}
-
-class Item {
-  private id: string;
-  private name: string;
-  private description: string;
-  private value: number;
-  private property: string;
-
-  constructor(item: RoomItem) {
-    this.id = item.itemId;
-    this.name = item.itemName;
-    this.description = item.itemDesc;
-    this.value = +item.itemValue;
-    this.property = item.itemProperty;
-  }
-
-  public stringify(): string {
-    return JSON.stringify(this);
-  }
-}
-
-class UnderWorld {
-  private id: string;
-  private name: string;
-  private description: string;
-  private helpText: string;
-  private image: string;
-  private allRooms: Map<string, Room>;
-  private allItems: Map<string, Item>;
-
-  constructor(dungeon: Dungeon) {
-    const { dungeonName, dungeonDesc, dungeonImg, helpText, rooms } = dungeon;
-    this.id = uniqid();
-    this.name = dungeonName;
-    this.description = dungeonDesc;
-    this.helpText = helpText;
-    this.image = dungeonImg;
-    this.initRooms(rooms);
-  }
-
-  private initRooms(rooms: Array<DungeonRoomMetadata>) {
-    this.allRooms = new Map();
-    for (let room of rooms) {
-      const roomId = uniqid();
-      this.allRooms.set(roomId, new Room(roomId, room));
-    }
-  }
-
-  private initItems(room: DungeonRoomMetadata): void {
-    this.allItems = new Map();
-    for (let item of room.items) {
-      const { itemId } = item;
-      this.allItems.set(itemId, new Item(item))
-    }
-  }
 
 
-}
 
 const state = {
   "roomName": "The Entrance Hall",
@@ -210,11 +135,10 @@ const state = {
 "itemProperty": ""
 
 
-
-
-*/
-
 let counter = 0;
 while (counter++ < 35) {
   console.log(`${counter}.`, uniqid('gold-'))
 }
+
+*/
+
