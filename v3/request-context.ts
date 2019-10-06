@@ -13,23 +13,65 @@ import {
   Room
 } from './model';
 
-import { AiLogger } from './util';
+import { AiLogger as Console } from './util';
 
 
 
-const handleChallenge = (ctx: any, requestCtx: RequestContext): void => {
+const caseHandleChallenge = (ctx: any, requestCtx: RequestContext): void => {
   // send back Slack 'challenge' token for endpoint verification
   const { challenge } = ctx.request.body;
-  if (challenge) Object.assign(requestCtx, { type: RequestType.Verify, challenge });
+  if (challenge) {
+    Object.assign(requestCtx, { type: RequestType.Verify, challenge });
+  }
 }
 
-const handleComponent = (ctx: any, requestCtx: RequestContext): void => {
+const caseHandleComponent = (ctx: any, requestCtx: RequestContext): void => {
+  const { event } = ctx.request.body;
+  if (event && event.client_msg_id) {
+    const { user, channel, text, event_ts, team, client_msg_id } = event;
+    const tracer = { user, channel, text, event_ts, team, client_msg_id, event };
+    Console.yellow().withHeader({ header: 'Context#handleUserMessage', body: tracer });
+    const { dungeonMaster } = requestCtx;
+    Console.yellow().log("handleUserMessage 1", JSON.stringify(requestCtx));
+    let player: Player = null;
+    try {
+      Console.yellow().log("Here2")
+      player = dungeonMaster.findOrAddPlayer(user);
+      Console.yellow().log("Here3", JSON.stringify(player))
+    } catch (error) {
+      Console.yellow().log("ERROR 123", JSON.stringify(error))
+    }
+
+    Object.assign(requestCtx,
+      {
+        type: RequestType.Ignore,
+        timestamp: event_ts,
+        channel: user,
+        user,
+        team,
+        text,
+        player,
+        roomName: player.getCurrentRoomId()
+      });
+
+    if (/play/i.test(text)) {
+      // send user game intro interactive component (IC)
+      Object.assign(requestCtx, { type: RequestType.Play });
+    } else {
+      // respond to user DM - i.e. '@mudbot ...'
+      // respond with 'Do you want to play a game...'
+      Object.assign(requestCtx, { type: RequestType.Chat });
+    }
+  }
+}
+
+const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
   const { event, payload } = ctx.request.body;
   if (!event && payload) {
     const { actions, channel, team, user, response_url, message } = JSON.parse(payload);
     const { name, value, text, action_ts } = actions[0];
     const tracer = { name, value, text, action_ts, channel, team, user, response_url, message, acitons: actions[0] };
-    AiLogger.yellow().withHeader({ header: 'Context#handleComponent', body: requestCtx })
+    Console.yellow().withHeader({ header: 'Context#handleComponent', body: requestCtx })
 
     const { dungeonMaster } = requestCtx;
     const player: Player = dungeonMaster.getPlayer(user.id);
@@ -43,6 +85,7 @@ const handleComponent = (ctx: any, requestCtx: RequestContext): void => {
         text,
         timestamp: action_ts,
         responseUrl: response_url,
+        player,
         roomId: player.getCurrentRoomId()
       });
 
@@ -75,47 +118,19 @@ const handleComponent = (ctx: any, requestCtx: RequestContext): void => {
           itemId: value  //chosen item name
         });
     }
-    AiLogger.yellow().stringify({ body: requestCtx });
+    Console.yellow().stringify({ body: requestCtx });
   }
 }
 
-const handleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
-  const { event } = ctx.request.body;
-  if (event && event.client_msg_id) {
-    const { user, channel, text, event_ts, team, client_msg_id } = event;
-    const tracer = { user, channel, text, event_ts, team, client_msg_id, event };
-    AiLogger.yellow().withHeader({ header: 'Context#handleUserMessage', body: tracer });
-    const { dungeonMaster } = requestCtx;
-    const player: Player = dungeonMaster.findOrAddPlayer(user);
 
-    Object.assign(requestCtx,
-      {
-        //type: RequestType.Ignore,
-        timestamp: event_ts,
-        channel: user,
-        user,
-        team,
-        text,
-        roomName: player.getCurrentRoomId()
-      });
-
-    if (/play/i.test(text)) {
-      // send user game intro interactive component (IC)
-      Object.assign(requestCtx, { type: RequestType.Play });
-    } else {
-      // respond to user DM - i.e. '@mudbot ...'
-      // respond with 'Do you want to play a game...'
-      Object.assign(requestCtx, { type: RequestType.Chat });
-    }
-  }
-}
 
 export const handleRequest = (ctx: any, dungeonMaster: any): RequestContext => {
   const { challenge } = ctx.request.body;
   let requestCtx: RequestContext = { ctx, dungeonMaster, type: RequestType.Ignore };
-  handleChallenge(ctx, requestCtx);
-  handleComponent(ctx, requestCtx);
-  handleUserMessage(ctx, requestCtx);
+  caseHandleChallenge(ctx, requestCtx);
+  caseHandleComponent(ctx, requestCtx);
+  caseHandleUserMessage(ctx, requestCtx);
+
   ctx.status = 200;
   return requestCtx;
 }

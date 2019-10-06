@@ -232,7 +232,7 @@ export const AiLogger = (() => {
         _endGroup();
     }
 
-    const _traceAll = (...args: any[]): void => {
+    const _log = (...args: any[]): void => {
         _header('Tracing state', _color);
         for (let indx in args) {
             console.log(_color, `(${+indx + 1}) ${args[indx]}`)
@@ -264,8 +264,8 @@ export const AiLogger = (() => {
             if (_toggle && isOn) _withHeader(header, body, color || _color);
         }
 
-        public static stringify = ({ body, color, isOn = true }: FunctionParams): void => {
-            if (_toggle && isOn) _stringify(body, color || _color);
+        public static stringify = (obj: any, color: string = undefined, isOn: boolean = true): void => {
+            if (_toggle && isOn) _stringify(obj, color || _color);
         }
 
         public static tablize = ({ body, isOn = true }: FunctionParams): void => {
@@ -276,8 +276,8 @@ export const AiLogger = (() => {
             if (_toggle && isOn) _trace(msg, color || _color);
         }
 
-        public static traceAll = (...args: any[]): void => {
-            if (_toggle) _traceAll(...args);
+        public static log = (...args: any[]): void => {
+            if (_toggle) _log(...args);
         }
     };
 
@@ -303,15 +303,15 @@ export const AiLogger = (() => {
             if (this.flick && isOn) _withHeader(header, body, color || this.color);
         }
 
-        public stringify = ({ body, color, isOn = true }: FunctionParams): void => {
-            if (this.flick && isOn) _stringify(body, color || this.color);
+        public stringify = (obj: any, color: string = undefined, isOn: boolean = true): void => {
+            if (this.flick && isOn) _stringify(obj, color || this.color);
         }
 
         public tablize = ({ body, isOn = true }: FunctionParams): void => {
             if (this.flick && isOn) _tablize(body);
         }
 
-        public traceAll = (...args: any[]): void => {
+        public log = (...args: any[]): void => {
             if (this.flick) {
                 _header('Tracing state', this.color);
                 for (let indx in args) {

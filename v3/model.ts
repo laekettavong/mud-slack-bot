@@ -132,6 +132,10 @@ export class Player {
     return this.id;
   }
 
+  public setName(name: string) {
+    this.name = name;
+  }
+
   public setCurrentRoom(roomId: string): void {
     this.currentRoomId = roomId;
   }
@@ -224,19 +228,28 @@ export class Underworld {
   }
 
   public findOrAddPlayer(playerId: string, playerName: string): Player {
-    AiLogger.cyan().withHeader({ header: 'Underworld#findOrAddPlayer', body: { playerId, playerName, size: this.allPlayers.size } });
+    //AiLogger.cyan().toggle();
+    //AiLogger.cyan().withHeader({ header: 'Underworld#findOrAddPlayer', body: { playerId, playerName, size: this.allPlayers.size } });
 
     if (!this.allPlayers.has(playerId)) {
       const indx = Math.floor(Math.random() * this.allRooms.size);
       const roomId = Array.from(this.allRooms.keys())[indx];
       const player = new Player(playerId, playerName, roomId)
       this.allPlayers.set(playerId, player);
-      AiLogger.cyan().traceAll(indx, roomId, player.stringify(), JSON.stringify(player));
+      AiLogger.cyan().log('NEW Player', indx, roomId, player.stringify(), JSON.stringify(player));
       return player;
     } else {
-      AiLogger.cyan().trace({ msg: 'THERE1' });
-      return this.allPlayers.get(playerId);
+      const player: Player = this.allPlayers.get(playerId);
+      if (playerName) {
+        player.setName(playerName);
+      }
+      AiLogger.cyan().log('Existing player', playerName, JSON.stringify(player));
+      return player;
     }
+  }
+
+  public stringify(): string {
+    return JSON.stringify(this);
   }
 }
 

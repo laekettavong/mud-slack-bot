@@ -56,26 +56,26 @@ export class SlackSubscriber implements Subscriber {
         // logger.stringify({ body: lae });
         // logger.tablize({ body: lae });
 
-        this.handlerMap.get(type)(requestCtx);
-        // switch (requestCtx.type) {
-        //     case RequestType.Move:
-        //     case RequestType.Play:
-        //     case RequestType.Start:
-        //         this.handleInteractiveComponent(requestCtx);
-        //         break;
-        //     case RequestType.Pickup:
-        //         this.handlePickup(requestCtx);
-        //         break;
-        //     case RequestType.Inventory:
-        //         this.handleInventory(requestCtx);
-        //         break;
-        //     case RequestType.Chat:
-        //         this.handleChat(requestCtx);
-        //         break;
-        //     case RequestType.Verify:
-        //     default: // Slack bot endpoint verification, just send back 'challenge token
-        //         this.handleChallenge(requestCtx);
-        // }
+        //this.handlerMap.get(type)(requestCtx);
+        switch (requestCtx.type) {
+            case RequestType.Move:
+            case RequestType.Play:
+            case RequestType.Start:
+                this.handleInteractiveComponent(requestCtx);
+                break;
+            case RequestType.Pickup:
+                this.handlePickup(requestCtx);
+                break;
+            case RequestType.Inventory:
+                this.handleInventory(requestCtx);
+                break;
+            case RequestType.Chat:
+                this.handleChat(requestCtx);
+                break;
+            case RequestType.Verify:
+            default: // Slack bot endpoint verification, just send back 'challenge token
+                this.handleChallenge(requestCtx);
+        }
 
     }
 
@@ -142,7 +142,7 @@ export class SlackSubscriber implements Subscriber {
     private sendReponse = ({ response, requestCtx }: any) => {
         const postActions = [RequestType.Chat, RequestType.Move, RequestType.Play, RequestType.Resume, RequestType.Start];
         const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
-        //console.log("Slack POST URL2:", url, JSON.stringify(response));
+        console.log("Slack POST URL VERSION 2:", url, JSON.stringify(response));
         const res = (async () => {
             return await this.httpHandler({
                 method: 'POST',

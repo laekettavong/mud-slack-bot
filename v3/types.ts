@@ -74,6 +74,7 @@ export type RequestContextOLD = {
 export type RequestContext = {
     ctx: any;
     dungeonMaster: any;
+    player?: Player;
     responseUrl?: string;
     timestamp?: string;
     challenge?: string;

@@ -47,7 +47,7 @@ export const DungeonMaster = (() => {
       this.underworld = UnderworldFactory.getInstance(dungeon);
     }
 
-    public findOrAddPlayer(playerId: string, playerName: string = 'None Given'): Player {
+    public findOrAddPlayer(playerId: string, playerName: string): Player {
       return this.underworld.findOrAddPlayer(playerId, playerName);
     }
 
@@ -75,6 +75,10 @@ export const DungeonMaster = (() => {
     public dropItem(room: Room, player: Player, item: Item): void {
       room.addItem(item);
       player.dropItem(item);
+    }
+
+    public getUnderworld(): string {
+      return this.underworld.stringify();
     }
   }
 
