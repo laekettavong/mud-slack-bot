@@ -30,7 +30,7 @@ export class ComponentDecorator {
 
     private static decorateChat = ({ response, requestCtx }: any): any => {
         // TODO: add text parser and response accordingly
-        const playMsg: string = "Not in the mood to chat. Would you like to play a game instead? Type 'play' to begin.";
+        const playMsg: string = "Not in the mood to chat. Would you like to play a game instead? Type 'play game' to begin.";
         Object.assign(response, { text: playMsg });
         return response;
     }

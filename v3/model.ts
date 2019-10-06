@@ -73,9 +73,9 @@ export class Room {
     //AiLogger.green().toggle();
     for (let dir of dirArray) {
       this.directions.set(Object.keys(dir)[0], Object.values(dir)[0])
-      AiLogger.green().traceAll(Object.keys(dir)[0], Object.values(dir)[0]);
+      //AiLogger.green().traceAll(Object.keys(dir)[0], Object.values(dir)[0]);
     }
-    AiLogger.green().withHeader({ header: "Room#setDirections", body: { dirArray } });
+    //AiLogger.green().withHeader({ header: "Room#setDirections", body: { dirArray } });
   }
 
   private initItems(room: DungeonRoomMetadata): void {
@@ -147,6 +147,10 @@ export class Player {
   public dropItem(item: Item): boolean {
     return this.inventory.delete(item.getId());
   }
+
+  public stringify(): string {
+    return JSON.stringify(this);
+  }
 }
 
 export class Underworld {
@@ -166,6 +170,7 @@ export class Underworld {
     this.description = dungeonDesc;
     this.helpText = helpText;
     this.image = dungeonImg;
+    this.allPlayers = new Map();
     this.initRooms(rooms);
     this.initItems(rooms);
   }
@@ -219,14 +224,18 @@ export class Underworld {
   }
 
   public findOrAddPlayer(playerId: string, playerName: string): Player {
-    if (this.allPlayers.has(playerId)) {
-      return this.allPlayers.get(playerId);
-    } else {
+    AiLogger.cyan().withHeader({ header: 'Underworld#findOrAddPlayer', body: { playerId, playerName, size: this.allPlayers.size } });
+
+    if (!this.allPlayers.has(playerId)) {
       const indx = Math.floor(Math.random() * this.allRooms.size);
       const roomId = Array.from(this.allRooms.keys())[indx];
       const player = new Player(playerId, playerName, roomId)
       this.allPlayers.set(playerId, player);
+      AiLogger.cyan().traceAll(indx, roomId, player.stringify(), JSON.stringify(player));
       return player;
+    } else {
+      AiLogger.cyan().trace({ msg: 'THERE1' });
+      return this.allPlayers.get(playerId);
     }
   }
 }

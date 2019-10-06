@@ -37,7 +37,7 @@ import { AiLogger } from './util';
 //   };
 // })();
 
-const DungeonMaster = (() => {
+export const DungeonMaster = (() => {
   let _instance: MudGame;
 
   class MudGame {
@@ -47,8 +47,8 @@ const DungeonMaster = (() => {
       this.underworld = UnderworldFactory.getInstance(dungeon);
     }
 
-    public play(playerId: string, playerName: string = 'None'): void {
-      const player = this.underworld.findOrAddPlayer(playerId, playerName);
+    public findOrAddPlayer(playerId: string, playerName: string = 'None Given'): Player {
+      return this.underworld.findOrAddPlayer(playerId, playerName);
     }
 
     public getCurrentRoom(player: Player): Room {
