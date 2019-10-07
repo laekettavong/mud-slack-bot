@@ -8,6 +8,7 @@ import {
   RoomItem
 } from './types';
 
+
 import { AiLogger as Console } from './util';
 
 export class Item {
@@ -45,7 +46,6 @@ export class Item {
     return JSON.stringify(this);
   }
 }
-
 
 export class Room {
   private id: string;
@@ -143,6 +143,10 @@ export class Player {
 
   public setName(name: string) {
     this.name = name;
+  }
+
+  public getInventory(): Map<string, Item> {
+    return this.inventory;
   }
 
   public setCurrentRoom(roomId: string): void {
@@ -299,19 +303,29 @@ export class MudGame {
     return this.underworld.getRoom(player.getCurrentRoomId());
   }
 
-  public getPlayer(playerId: string): Player {
-    return this.underworld.getPlayer(playerId);
-  }
-
-  public getRoom(roomId: string): Room {
+  public getCurrentById(roomId: string): Room {
     return this.underworld.getRoom(roomId);
   }
 
-  public getItem(itemId: string): Item {
+  public getPlayerById(playerId: string): Player {
+    return this.underworld.getPlayer(playerId);
+  }
+
+  public getRoomById(roomId: string): Room {
+    return this.underworld.getRoom(roomId);
+  }
+
+  public getItemById(itemId: string): Item {
     return this.underworld.getItem(itemId);
   }
 
-  public pickupItemBy(room: Room, player: Player, item: Item): void {
+  /*
+  TODO: 
+    moveTo(playerId, roomId)
+    pickupItem(playerId, roomId, itemId)
+    dropItem(playerId, roomId, itemId)
+  */
+  public pickupItem(room: Room, player: Player, item: Item): void {
     room.removeItem(item);
     player.pickupItem(item);
   }
@@ -331,21 +345,40 @@ export class MudGame {
     return roomDirs;
   }
 
-  public getDirections2(roomId: string): any {
+  public getPlayerJson(playerId: string): any {
+    const player: Player = this.underworld.getPlayer(playerId);
+    const inventoryMap: Map<string, Item> = player.getInventory();
+    const playerInventory: any[] = [];
+    let gold: number = 0;
+    inventoryMap.forEach((item: Item, key: string) => {
+      gold += +item.getValue();
+      playerInventory.push(item);
+    });
+    return { ...player, gold, inventory: playerInventory };
+  }
+  public getRoomJson(roomId: string): any {
     const room: Room = this.underworld.getRoom(roomId);
     const dirsMap: Map<string, string> = room.getDirections();
     const roomDirs: any[] = [];
-    dirsMap.forEach((key: string, value: string) => {
-      Console.green().log({ direction: value, name: key, id: this.underworld.getRoomId(key) });
-      roomDirs.push({ direction: value, name: key, id: this.underworld.getRoomId(key) });
+    dirsMap.forEach((value: string, key: string) => {
+      //Console.green().log({ direction: key, name: value, id: this.underworld.getRoomId(value) });
+      roomDirs.push({ direction: key, id: this.underworld.getRoomId(value), name: value });
     });
 
-    //const itemsMap: Map<string, string> = room.getItems();
-    //return roomDirs;
+    const itemsMap: Map<string, Item> = room.getItems();
+    const roomItems: any[] = [];
+    itemsMap.forEach((value: Item, key: string) => {
+      roomItems.push(value);
+    });
 
-    Console.green().log(roomDirs.length, { ...room, directions: roomDirs }, JSON.stringify({ ...room, directions: roomDirs }))
+    return { ...room, directions: roomDirs, items: roomItems };
+  }
 
-    return { ...room, directions: roomDirs }
+  public getGameContext(playerId: string, playerName: string): any {
+    const player: Player = this.underworld.findOrAddPlayer(playerId, playerName);
+    const playerJson: any = this.getPlayerJson(playerId);
+    const roomJson: any = this.getRoomJson(player.getCurrentRoomId());
+    return { room: roomJson, player: playerJson };
   }
 
   public getUnderworld(): string {

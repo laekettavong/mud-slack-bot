@@ -10,8 +10,9 @@ import { DungeonMaster } from './master'
 require('dotenv').config()
 
 import {
-  MudGame,
-  Player
+  Item,
+  Player,
+  Room
 } from './model';
 
 const app = new Koa();
@@ -25,12 +26,19 @@ slackPublisher.add(new SlackSubscriber(rp))
 const mudGame = DungeonMaster.getInstance(forsakenGoblin);
 
 router.get('/bot', async (ctx, next) => {
-  const player: Player = mudGame.getPlayer("UFGEC4XNX");
-  //console.log("XXXX Mudegame", JSON.stringify(mudGame))
-  //console.log("XXXX player", JSON.stringify(player))
 
-  mudGame.getDirections2("chamber-4pvk1dtqyk0");
-  ctx.body = 'Hello world';//JSON.stringify(player);
+  if (1) {
+    const player: Player = mudGame.findOrAddPlayer("UFGEC4XNX", "Lae");
+    const room: Room = mudGame.getCurrentById("chamber-4pvk1dtqyk6");
+    const item1: Item = mudGame.getItemById("gold-4wtk1dtw2n8");
+    const item2: Item = mudGame.getItemById("gold-4wtk1dtw2n9");
+    mudGame.pickupItem(room, player, item1);
+    mudGame.pickupItem(room, player, item2);
+    // mudGame.getPlayerJson("UFGEC4XNX");
+    // mudGame.getRoomJson("chamber-4pvk1dtqyk6")
+  }
+
+  ctx.body = mudGame.getGameContext("UFGEC4XNX", "Lae")
 });
 
 router.post('/bot', async (ctx, next) => {
@@ -38,7 +46,6 @@ router.post('/bot', async (ctx, next) => {
   ctx.body = '';
   //slackPublisher.notify(handleRequest(ctx, forsakenGoblin))
   //slackPublisher.notify(handleRequest(ctx, DungeonMaster.getInstance(forsakenGoblin)))
-  console.log("XXXX2", JSON.stringify(mudGame))
   slackPublisher.notify(handleRequest(ctx, mudGame));
 });
 
