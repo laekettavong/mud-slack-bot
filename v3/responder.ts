@@ -58,7 +58,7 @@ export class SlackSubscriber implements Subscriber {
 
     private handleInteractiveComponent = (requestCtx: RequestContext): void => {
         const { player } = requestCtx;
-        Console.green().log('PLAY!!', requestCtx.type)
+        Console.green().log('handleInteractiveComponent', requestCtx.type)
         // {"id":"UFGEC4XNX","startRoomId":"chamber-4pvk1dtqyk7","currentRoomId":"chamber-4pvk1dtqyk7","killCount":0,"inventory":{}}
         let response = this.getCommonResponse(requestCtx);
         response = Decorator.decorate({ response, requestCtx });
@@ -122,21 +122,16 @@ export class SlackSubscriber implements Subscriber {
         //console.log("Slack POST URL2:", url, JSON.stringify(response));
         Console.green().log('Slack POST URL123 909', url, JSON.stringify(response), this.httpHandler);
         const res = (async () => {
-            try {
-                return await this.httpHandler({
-                    method: 'POST',
-                    url,
-                    headers: {
-                        'Authorization': `Bearer ${process.env.SLACK_BOT_USER_OAUTH_TOKEN}`,
-                        'Content-type': 'application/json; charset=utf-8'
-                    },
-                    json: true,
-                    body: response
-                });
-            } catch (error) {
-                console.log("XXXXXERROR", error)
-            }
-
+            return await this.httpHandler({
+                method: 'POST',
+                url,
+                headers: {
+                    'Authorization': `Bearer ${process.env.SLACK_BOT_USER_OAUTH_TOKEN}`,
+                    'Content-type': 'application/json; charset=utf-8'
+                },
+                json: true,
+                body: response
+            });
         })();
         //console.log("isOK?", JSON.stringify(res));
     }

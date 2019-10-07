@@ -4,6 +4,7 @@ import * as R from 'ramda';
 
 import {
   Item,
+  MudGame,
   Room,
   Player,
   Underworld,
@@ -40,47 +41,47 @@ import { AiLogger } from './util';
 export const DungeonMaster = (() => {
   let _instance: MudGame;
 
-  class MudGame {
-    private underworld: Underworld;
+  // class MudGame {
+  //   private underworld: Underworld;
 
-    constructor(dungeon: Dungeon) {
-      this.underworld = UnderworldFactory.getInstance(dungeon);
-    }
+  //   constructor(dungeon: Dungeon) {
+  //     this.underworld = UnderworldFactory.getInstance(dungeon);
+  //   }
 
-    public findOrAddPlayer(playerId: string, playerName: string): Player {
-      return this.underworld.findOrAddPlayer(playerId, playerName);
-    }
+  //   public findOrAddPlayer(playerId: string, playerName: string): Player {
+  //     return this.underworld.findOrAddPlayer(playerId, playerName);
+  //   }
 
-    public getCurrentRoom(player: Player): Room {
-      return this.underworld.getRoom(player.getCurrentRoomId());
-    }
+  //   public getCurrentRoom(player: Player): Room {
+  //     return this.underworld.getRoom(player.getCurrentRoomId());
+  //   }
 
-    public getPlayer(playerId: string): Player {
-      return this.underworld.getPlayer(playerId);
-    }
+  //   public getPlayer(playerId: string): Player {
+  //     return this.underworld.getPlayer(playerId);
+  //   }
 
-    public getRoom(roomId: string): Room {
-      return this.underworld.getRoom(roomId);
-    }
+  //   public getRoom(roomId: string): Room {
+  //     return this.underworld.getRoom(roomId);
+  //   }
 
-    public getItem(itemId: string): Item {
-      return this.underworld.getItem(itemId);
-    }
+  //   public getItem(itemId: string): Item {
+  //     return this.underworld.getItem(itemId);
+  //   }
 
-    public pickupItemBy(room: Room, player: Player, item: Item): void {
-      room.removeItem(item);
-      player.pickupItem(item);
-    }
+  //   public pickupItemBy(room: Room, player: Player, item: Item): void {
+  //     room.removeItem(item);
+  //     player.pickupItem(item);
+  //   }
 
-    public dropItem(room: Room, player: Player, item: Item): void {
-      room.addItem(item);
-      player.dropItem(item);
-    }
+  //   public dropItem(room: Room, player: Player, item: Item): void {
+  //     room.addItem(item);
+  //     player.dropItem(item);
+  //   }
 
-    public getUnderworld(): string {
-      return this.underworld.stringify();
-    }
-  }
+  //   public getUnderworld(): string {
+  //     return this.underworld.stringify();
+  //   }
+  // }
 
   const getInstance = (dungeon: Dungeon): MudGame => {
     if (!_instance) {

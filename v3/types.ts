@@ -62,8 +62,7 @@ export type RequestContextOLD = {
     team: string
     dungeon: any,
     room: any,
-    roomName: string;
-    itemName: string;
+    item: string;
     timestamp: string;
     responseUrl: string;
     challenge: string;

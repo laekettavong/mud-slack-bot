@@ -26,7 +26,7 @@ export const Decorator = (() => {
         const { name, description, image, helpText } = underworld;
         //const underworld = dungeonMaster.getUnderworld();
         //const { dungeonName, dungeonDesc, dungeonImg, helpText } = underworld;
-        Console.cyan().log('1_decoratePlay', JSON.stringify(underworld), JSON.stringify(player), name, description, image, helpText);
+        //Console.cyan().log('1_decoratePlay', JSON.stringify(underworld), JSON.stringify(player), name, description, image, helpText);
         Object.assign(response, { text: "Dungeon entrance, enter at your own risk" });
         // add description/image
         const blocks: Array<any> = [
@@ -73,12 +73,19 @@ export const Decorator = (() => {
             }
         ];
         Object.assign(response, { attachments });
-        Console.cyan().log('2 _decoratePlay', JSON.stringify(response));
+        //Console.cyan().log('2 _decoratePlay', JSON.stringify(response));
         return response;
     }
 
     const _decorateMove = ({ response, requestCtx }: any): any => {
-        const { roomName, room, inventory } = requestCtx;
+        // const { roomName, room, inventory } = requestCtx;
+
+        const { dungeonMaster, player, room } = requestCtx;
+        const { underworld } = dungeonMaster;
+       // const {id, name, desription, image} = room;
+        Console.cyan().log('1 _decorateMove', JSON.stringify(requestCtx), JSON.stringify(dungeonMaster), JSON.stringify(player));
+
+        /*
         //console.log("ROOM", roomName, room)
         Object.assign(response, { type: "mrkdwn", text: roomName });
 
@@ -173,6 +180,7 @@ export const Decorator = (() => {
             Object.assign(attachments[0], { actions });
             Object.assign(response, { attachments });
         }
+        */
         return response;
     }
 

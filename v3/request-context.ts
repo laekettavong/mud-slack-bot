@@ -30,17 +30,16 @@ const caseHandleComponent = (ctx: any, requestCtx: RequestContext): void => {
   if (event && event.client_msg_id) {
     const { user, channel, text, event_ts, team, client_msg_id } = event;
     const tracer = { user, channel, text, event_ts, team, client_msg_id, event };
-    Console.yellow().withHeader({ header: 'Context#handleUserMessage', body: tracer });
+    //Console.yellow().withHeader({ header: 'Context#handleUserMessage', body: tracer });
     const { dungeonMaster } = requestCtx;
-    Console.yellow().log("handleUserMessage 1", JSON.stringify(requestCtx));
-    let player: Player = null;
-    try {
-      Console.yellow().log("Here2")
-      player = dungeonMaster.findOrAddPlayer(user);
-      Console.yellow().log("Here3", JSON.stringify(player))
-    } catch (error) {
-      Console.yellow().log("ERROR 123", JSON.stringify(error))
-    }
+    // Console.yellow().log("handleUserMessage 1", JSON.stringify(requestCtx));
+ 
+
+    const player: Player = dungeonMaster.findOrAddPlayer(user);
+    const room: Room = dungeonMaster.getRoom(player.getCurrentRoomId());
+    const dirs = room.getDirections();
+    Console.yellow().log("handleUserMessage 1", JSON.stringify(player), JSON.stringify(room), dirs);
+  
 
     Object.assign(requestCtx,
       {
@@ -51,7 +50,7 @@ const caseHandleComponent = (ctx: any, requestCtx: RequestContext): void => {
         team,
         text,
         player,
-        roomName: player.getCurrentRoomId()
+        room
       });
 
     if (/play/i.test(text)) {
