@@ -110,12 +110,20 @@ export class Room {
     return this.name;
   }
 
-  public stringify(): string {
-    let directions: any = []
-    this.directions.forEach((value, key) => {
-      directions.push({ key, value });
+  public stringify(): any {
+    const roomDirs: any[] = [];
+    this.directions.forEach((value: string, key: string) => {
+      roomDirs.push({ direction: key, id: this.getId(), name: value });
     });
-    return JSON.stringify(this);
+
+    const roomItems: any[] = [];
+    this.items.forEach((value: Item, key: string) => {
+      roomItems.push(value);
+    });
+
+    const json = { ...this, directions: roomDirs, items: roomItems }
+    //Console.green().log(JSON.stringify(json));
+    return json;
   }
 }
 
@@ -165,8 +173,16 @@ export class Player {
     return this.inventory.delete(item.getId());
   }
 
-  public stringify(): string {
-    return JSON.stringify(this);
+  public stringify(): any {
+    const playerInventory: any[] = [];
+    let gold: number = 0;
+    this.inventory.forEach((item: Item, key: string) => {
+      gold += +item.getValue();
+      playerInventory.push(item);
+    });
+    const json = { ...this, gold, inventory: playerInventory };
+    Console.red().log(json, JSON.stringify(json));
+    return json;
   }
 }
 
@@ -265,7 +281,6 @@ export class Underworld {
     }
   }
 
-
   public stringify(): string {
     return JSON.stringify(this);
   }
@@ -347,31 +362,11 @@ export class MudGame {
 
   public getPlayerJson(playerId: string): any {
     const player: Player = this.underworld.getPlayer(playerId);
-    const inventoryMap: Map<string, Item> = player.getInventory();
-    const playerInventory: any[] = [];
-    let gold: number = 0;
-    inventoryMap.forEach((item: Item, key: string) => {
-      gold += +item.getValue();
-      playerInventory.push(item);
-    });
-    return { ...player, gold, inventory: playerInventory };
+    return player.stringify();
   }
   public getRoomJson(roomId: string): any {
     const room: Room = this.underworld.getRoom(roomId);
-    const dirsMap: Map<string, string> = room.getDirections();
-    const roomDirs: any[] = [];
-    dirsMap.forEach((value: string, key: string) => {
-      //Console.green().log({ direction: key, name: value, id: this.underworld.getRoomId(value) });
-      roomDirs.push({ direction: key, id: this.underworld.getRoomId(value), name: value });
-    });
-
-    const itemsMap: Map<string, Item> = room.getItems();
-    const roomItems: any[] = [];
-    itemsMap.forEach((value: Item, key: string) => {
-      roomItems.push(value);
-    });
-
-    return { ...room, directions: roomDirs, items: roomItems };
+    return room.stringify();
   }
 
   public getGameContext(playerId: string, playerName: string): any {
