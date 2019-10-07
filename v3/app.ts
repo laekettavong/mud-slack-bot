@@ -26,9 +26,8 @@ slackPublisher.add(new SlackSubscriber(rp))
 const mudGame = DungeonMaster.getInstance(forsakenGoblin);
 
 router.get('/bot', async (ctx, next) => {
-
   if (1) {
-    const player: Player = mudGame.findOrAddPlayer("UFGEC4XNX", "Lae");
+    const player: Player = mudGame.findOrAddPlayer("UFGEC4XNX", "John Wick");
     const room: Room = mudGame.getCurrentById("chamber-4pvk1dtqyk6");
     const item1: Item = mudGame.getItemById("gold-4wtk1dtw2n8");
     const item2: Item = mudGame.getItemById("gold-4wtk1dtw2n9");
@@ -36,9 +35,10 @@ router.get('/bot', async (ctx, next) => {
     mudGame.pickupItem( player.getId(), room.getId(), item2.getId());
     // mudGame.getPlayerJson("UFGEC4XNX");
     // mudGame.getRoomJson("chamber-4pvk1dtqyk6")
+    ctx.body = mudGame.getGameContext("UFGEC4XNX", "Lae")
+  } else{
+    ctx.body = 'Welcome to the Underworld, prepare to...';
   }
-
-  ctx.body = mudGame.getGameContext("UFGEC4XNX", "Lae")
 });
 
 router.post('/bot', async (ctx, next) => {
@@ -49,6 +49,3 @@ router.post('/bot', async (ctx, next) => {
 
 app.use(router.routes()).use(router.allowedMethods());
 app.listen(5555);
-
-
-// https://api.slack.com/apps/ANN6W2UET/interactive-messages?
