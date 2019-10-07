@@ -70,19 +70,22 @@ export class Room {
     const dirs = R.reject((n: string) => R.isEmpty(n))(directions);
     const dirArray = R.pipe(R.toPairs, R.map(R.apply(R.objOf)))(dirs);
     this.directions = new Map();
-
-    //AiLogger.green().toggle();
     for (let dir of dirArray) {
-      this.directions.set(Object.keys(dir)[0], Object.values(dir)[0])
-      //AiLogger.green().traceAll(Object.keys(dir)[0], Object.values(dir)[0]);
+      this.directions.set(Object.keys(dir)[0], Object.values(dir)[0]);
     }
-    //AiLogger.green().withHeader({ header: "Room#setDirections", body: { dirArray } });
+  }
+  public getId(): string {
+    return this.id;
+  }
+
+  public getName(): string {
+    return this.name;
   }
 
   private initItems(room: DungeonRoomMetadata): void {
     this.items = new Map();
     for (let item of room.items) {
-      this.items.set(item.itemId, new Item(item))
+      this.items.set(item.itemId, new Item(item));
     }
   }
 
@@ -100,14 +103,6 @@ export class Room {
 
   public getItems(): Map<string, Item> {
     return this.items;
-  }
-
-  public getId(): string {
-    return this.id;
-  }
-
-  public getName(): string {
-    return this.name;
   }
 
   public stringify(): any {
@@ -157,7 +152,7 @@ export class Player {
     return this.inventory;
   }
 
-  public setCurrentRoom(roomId: string): void {
+  public setCurrentRoomId(roomId: string): void {
     this.currentRoomId = roomId;
   }
 
@@ -266,15 +261,17 @@ export class Underworld {
 
   public findOrAddPlayer(playerId: string, playerName: string): Player {
     if (!this.allPlayers.has(playerId)) {
-      const indx = Math.floor(Math.random() * this.allRooms.size - 1); // 'EXIT' room is the last room in array, so exclude it
+      // 'EXIT' room is the last room in array, so exclude it
+      const indx = Math.floor(Math.random() * this.allRooms.size - 1);
       const roomId = Array.from(this.allRooms.keys())[indx];
       const player = new Player(playerId, playerName, roomId)
       this.allPlayers.set(playerId, player);
-      Console.cyan().log('NEW Player', indx, roomId, player.stringify(), JSON.stringify(player));
+      //Console.cyan().log('NEW Player', indx, roomId, player.stringify(), JSON.stringify(player));
       return player;
     } else {
       const player: Player = this.allPlayers.get(playerId);
       if (playerName) {
+        // depending on Slack event, user name maynot be available during player creation
         player.setName(playerName);
       }
       return player;
@@ -286,7 +283,7 @@ export class Underworld {
   }
 }
 
-export const UnderworldFactory = (() => {
+export const UnderworldSingleton = (() => {
   let _instance: Underworld;
 
   const getInstance = (dungeon: Dungeon): Underworld => {
@@ -307,7 +304,7 @@ export class MudGame {
   private underworld: Underworld;
 
   constructor(dungeon: Dungeon) {
-    this.underworld = UnderworldFactory.getInstance(dungeon);
+    this.underworld = UnderworldSingleton.getInstance(dungeon);
   }
 
   public findOrAddPlayer(playerId: string, playerName: string): Player {
@@ -334,18 +331,13 @@ export class MudGame {
     return this.underworld.getItem(itemId);
   }
 
-  /*
-  TODO: 
-    moveTo(playerId, roomId)
-    pickupItem(playerId, roomId, itemId)
-    dropItem(playerId, roomId, itemId)
-  */
-  public pickupItem(room: Room, player: Player, item: Item): void {
+
+  public pickupItemX(room: Room, player: Player, item: Item): void {
     room.removeItem(item);
     player.pickupItem(item);
   }
 
-  public dropItem(room: Room, player: Player, item: Item): void {
+  public dropItemX(room: Room, player: Player, item: Item): void {
     room.addItem(item);
     player.dropItem(item);
   }
@@ -358,6 +350,35 @@ export class MudGame {
       roomDirs.push({ direction: value, name: key, id: this.underworld.getRoomId(key) });
     })
     return roomDirs;
+  }
+
+  /****************/
+  /*
+  TODO: 
+    moveTo(playerId, roomId)
+    pickupItem(playerId, roomId, itemId)
+    dropItem(playerId, roomId, itemId)
+  */
+
+  public enterRoom(playerId: string, roomId: string): void {
+    const player: Player = this.underworld.getPlayer(playerId);
+    player.setCurrentRoomId(roomId);
+  }
+
+  public pickupItem(playerId: string, roomId: string, itemId: string): void {
+    const player: Player = this.underworld.getPlayer(playerId);
+    const room: Room = this.underworld.getRoom(roomId);
+    const item: Item = this.underworld.getItem(itemId);
+    room.removeItem(item);
+    player.pickupItem(item);
+  }
+
+   public dropItem(playerId: string, roomId: string, itemId: string): void {
+    const player: Player = this.underworld.getPlayer(playerId);
+    const room: Room = this.underworld.getRoom(roomId);
+    const item: Item = this.underworld.getItem(itemId);
+    room.addItem(item);
+    player.dropItem(item);
   }
 
   public getPlayerJson(playerId: string): any {

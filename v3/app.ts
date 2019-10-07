@@ -32,8 +32,8 @@ router.get('/bot', async (ctx, next) => {
     const room: Room = mudGame.getCurrentById("chamber-4pvk1dtqyk6");
     const item1: Item = mudGame.getItemById("gold-4wtk1dtw2n8");
     const item2: Item = mudGame.getItemById("gold-4wtk1dtw2n9");
-    mudGame.pickupItem(room, player, item1);
-    mudGame.pickupItem(room, player, item2);
+    mudGame.pickupItem( player.getId(), room.getId(), item1.getId());
+    mudGame.pickupItem( player.getId(), room.getId(), item2.getId());
     // mudGame.getPlayerJson("UFGEC4XNX");
     // mudGame.getRoomJson("chamber-4pvk1dtqyk6")
   }
@@ -44,14 +44,11 @@ router.get('/bot', async (ctx, next) => {
 router.post('/bot', async (ctx, next) => {
   ctx.status = 200;
   ctx.body = '';
-  //slackPublisher.notify(handleRequest(ctx, forsakenGoblin))
-  //slackPublisher.notify(handleRequest(ctx, DungeonMaster.getInstance(forsakenGoblin)))
   slackPublisher.notify(handleRequest(ctx, mudGame));
 });
 
 app.use(router.routes()).use(router.allowedMethods());
 app.listen(5555);
-
 
 
 // https://api.slack.com/apps/ANN6W2UET/interactive-messages?
