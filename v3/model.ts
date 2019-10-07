@@ -4,10 +4,11 @@ import * as R from 'ramda';
 import {
   Dungeon,
   DungeonRoomMetadata,
+  PlayerRoomItemParam,
+  PlayerRoomParam,
   RoomDirectionState,
   RoomItem
 } from './types';
-
 
 import { AiLogger as Console } from './util';
 
@@ -355,17 +356,16 @@ export class MudGame {
   /****************/
   /*
   TODO: 
-    moveTo(playerId, roomId)
-    pickupItem(playerId, roomId, itemId)
-    dropItem(playerId, roomId, itemId)
+
+
   */
 
-  public enterRoom(playerId: string, roomId: string): void {
+  public enterRoom({ playerId, roomId }: PlayerRoomParam): void {
     const player: Player = this.underworld.getPlayer(playerId);
     player.setCurrentRoomId(roomId);
   }
 
-  public pickupItem(playerId: string, roomId: string, itemId: string): void {
+  public pickupItem({ playerId, roomId, itemId }: PlayerRoomItemParam): void {
     const player: Player = this.underworld.getPlayer(playerId);
     const room: Room = this.underworld.getRoom(roomId);
     const item: Item = this.underworld.getItem(itemId);
@@ -373,7 +373,7 @@ export class MudGame {
     player.pickupItem(item);
   }
 
-   public dropItem(playerId: string, roomId: string, itemId: string): void {
+   public dropItem({ playerId, roomId, itemId }: PlayerRoomItemParam): void {
     const player: Player = this.underworld.getPlayer(playerId);
     const room: Room = this.underworld.getRoom(roomId);
     const item: Item = this.underworld.getItem(itemId);

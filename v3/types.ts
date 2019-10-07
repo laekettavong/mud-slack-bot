@@ -1,3 +1,4 @@
+/***[ Types ]********/
 export type Dungeon = {
     dungeonId?: string; //TODO..make quired
     dungeonName: string;
@@ -87,6 +88,18 @@ export type RequestContext = {
     direction?: string; //TODO needit still? 
 }
 
+export type PlayerRoomParam = {
+  playerId: string;
+  roomId: string;
+}
+
+export type PlayerRoomItemParam = {
+  playerId: string;
+  roomId: string;
+  itemId: string
+}
+
+/***[ Enums ]********/
 export enum RequestType {
     Play = 'play',
     Chat = 'chat',
@@ -109,6 +122,7 @@ export enum NavDirection {
     Down = 'down'
 }
 
+/***[ Interfaces ]********/
 export interface Subscriber {
     respond(action: RequestContext): void;
 }

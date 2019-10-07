@@ -1,6 +1,3 @@
-
-import uniqid from 'uniqid'; //uniqid('gold-')
-import * as R from 'ramda';
 import { MudGame } from './model';
 import { Dungeon } from './types';
 

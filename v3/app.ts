@@ -20,19 +20,19 @@ const router = new Router();
 router.prefix('/slack');
 app.use(bodyParser());
 
-
 const slackPublisher = new SlackPublisher();
-slackPublisher.add(new SlackSubscriber(rp))
+slackPublisher.add(new SlackSubscriber(rp));
 const mudGame = DungeonMaster.getInstance(forsakenGoblin);
 
 router.get('/bot', async (ctx, next) => {
   if (1) {
+    // Slack userId => playerId
     const player: Player = mudGame.findOrAddPlayer("UFGEC4XNX", "John Wick");
     const room: Room = mudGame.getCurrentById("chamber-4pvk1dtqyk6");
     const item1: Item = mudGame.getItemById("gold-4wtk1dtw2n8");
     const item2: Item = mudGame.getItemById("gold-4wtk1dtw2n9");
-    mudGame.pickupItem( player.getId(), room.getId(), item1.getId());
-    mudGame.pickupItem( player.getId(), room.getId(), item2.getId());
+    mudGame.pickupItem({ playerId: player.getId(), roomId: room.getId(), itemId: item1.getId() });
+    mudGame.pickupItem({ playerId: player.getId(), roomId: room.getId(), itemId: item2.getId() });
     // mudGame.getPlayerJson("UFGEC4XNX");
     // mudGame.getRoomJson("chamber-4pvk1dtqyk6")
     ctx.body = mudGame.getGameContext("UFGEC4XNX", "Lae")
