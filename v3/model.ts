@@ -1,4 +1,3 @@
-import uniqid from 'uniqid';
 import * as R from 'ramda';
 
 import {
@@ -75,6 +74,7 @@ export class Room {
       this.directions.set(Object.keys(dir)[0], Object.values(dir)[0]);
     }
   }
+
   public getId(): string {
     return this.id;
   }
@@ -168,8 +168,7 @@ export class Player {
       gold += +item.getValue();
       playerInventory.push(item);
     });
-    const json = { ...this, gold, inventory: playerInventory };
-    return json;
+    return { ...this, gold, inventory: playerInventory };
   }
 }
 
@@ -253,7 +252,7 @@ export class Underworld {
 
   public findOrAddPlayer(playerId: string, playerName: string): Player {
     if (!this.allPlayers.has(playerId)) {
-      // 'EXIT' room is the last room in array, so exclude it
+      // 'EXIT' room is the last room in array, so exclude it since player shouldn't start there
       const indx = Math.floor(Math.random() * this.allRooms.size - 1);
       const roomId = Array.from(this.allRooms.keys())[indx];
       const player = new Player(playerId, playerName, roomId)
@@ -321,24 +320,6 @@ export class MudGame {
     return this.underworld.getItem(itemId);
   }
 
-
-  public getDirections(roomId: string): any[] {
-    const room: Room = this.underworld.getRoom(roomId);
-    const dirMap: Map<string, string> = room.getDirections();
-    const roomDirs: any[] = [];
-    dirMap.forEach((key: string, value: string) => {
-      roomDirs.push({ direction: value, name: key, id: this.underworld.getRoomId(key) });
-    })
-    return roomDirs;
-  }
-
-  /****************/
-  /*
-  TODO: 
-
-
-  */
-
   public enterRoom({ playerId, roomId }: PlayerRoomParam): void {
     const player: Player = this.underworld.getPlayer(playerId);
     player.setCurrentRoomId(roomId);
@@ -380,9 +361,5 @@ export class MudGame {
     const playerJson: any = this.getPlayerJson(playerId);
     const roomJson: any = this.getRoomJson(player.getCurrentRoomId());
     return { room: roomJson, player: playerJson };
-  }
-
-  public getUnderworld(): string {
-    return this.underworld.stringify();
   }
 }

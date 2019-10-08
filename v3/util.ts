@@ -12,16 +12,15 @@ import {
     Player
 } from './types'
 
+//Let's explore ramda
 export class StateUtil {
 
-    // const directions: RoomDirectionState = getRoomDirections(room);
     public static getRoomDirections = (room: DungeonRoom): any => {
         const directions: RoomDirectionState = R.pickAll(['north', 'south', 'east', 'west', 'up', 'down'])(room);
         const dirs = R.reject((n: string) => R.isEmpty(n))(directions);
         return R.pipe(R.toPairs, R.map(R.apply(R.objOf)))(dirs);
     }
 
-    // const room = getRoomStateByName(dungeon.rooms, 'The Tomb of the Unknown Goblin')
     public static getRoomStateByName = (rooms: Array<DungeonRoom>, name: String): DungeonRoomState => {
         const dungeonRoom: DungeonRoom = R.filter(R.where({ roomName: R.equals(name) }))(rooms)[0];
         const roomMetadata: DungeonRoomMetadata = R.pickAll(['roomName', 'roomDesc', 'roomImg', 'items'])(dungeonRoom);
@@ -108,49 +107,6 @@ export class StateUtil {
         StateUtil.setPlayerState(dungeon, roomName, playerId, roomItem);
         console.log("\nPlayer stats:", dungeon.players)
     }
-
-
-    /*
-
-        public static setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string, itemName: string, gold: string): void => {
-        //const {itemValue} = StateUtil.getRoomItem(dungeon, currentRoom, itemName);
-        const player: Player = StateUtil.getPlayerState(dungeon, playerId);
-        if (player) {
-            player.gold += +gold;
-            player.currentRoom = currentRoom;
-            player.inventory.push(itemName);
-        } else {
-            dungeon.players.push({
-                id: playerId,
-                gold: +gold,
-                startRoom: currentRoom,
-                currentRoom,
-                inventory: [itemName]
-            })
-        }
-    }
-
-    public static pickupItem = (dungeon: Dungeon, playerId: string, roomName: string, itmName: string) => {
-        const roomItems = StateUtil.getRoomItems(dungeon, roomName);
-        const { itemName, itemValue, itemDesc, itemProperty } = StateUtil.getItem(roomItems, itmName);
-        StateUtil.removeRoomItem(dungeon, roomName, itemName);
-        StateUtil.setPlayerState(dungeon, roomName, playerId, itemName, itemValue);
-        console.log("\nPlayer stats:", dungeon.players)
-    }
-
-
-       public static getInventoryItems = (dungeon: Dungeon, itemNames: Array<string>): Array<RoomItem> => {
-        const allItems = StateUtil.getItemsFromAllRooms(dungeon);
-        console.log("\n***getInventoryItems1:", JSON.stringify(allItems));
-        let inventoryItems: Array<RoomItem> = [];
-        for (let item of allItems) {
-            if (R.includes(item.itemName, itemNames)) inventoryItems.push(item);
-        }
-        console.log("\n***getInventoryItems2:", JSON.stringify(inventoryItems));
-        return inventoryItems;
-    }
-    
-    */
 }
 
 export class DecoratorUtil {
@@ -174,6 +130,7 @@ export class DecoratorUtil {
     }
 }
 
+//TODO: make open source, add to NPM 'Ai' utility class collection
 export const AiLogger = (() => {
 
     type LoggerConstructor = {
@@ -320,14 +277,6 @@ export const AiLogger = (() => {
                 _endGroup();
             }
         }
-
-        private endGroup = (): void => {
-            _endGroup();
-        }
-
-        private blank = (): void => {
-            _blank();
-        }
     }
 
     const instantiate = ({ name, color }: LoggerConstructor) => {
@@ -354,90 +303,3 @@ export const AiLogger = (() => {
         makeWhiteLogger: (name: string) => instantiate({ name, color: Color.White })
     }
 })();
-
-
-
-
-/*
-
-const lae = { first: "Lae", last: "Kettavong", address: "1188 Louise Way", age: 45, title: "Software Engineer" }
-AiLogger._.withHeader({ header: "SlackSubscriber.respond", color: AiLogger.Color.Red, body: { type, roomName, itemName } });
-AiLogger.green().withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
-AiLogger.yellow().withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
-AiLogger.red().withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
-AiLogger.yellow().trace("one", "two", "three", "four");
-AiLogger.cyan().trace("one", "two", "three", "four");
-AiLogger.lightblue().stringify({ body: lae });
-AiLogger.blue().tablize({ body: lae });
-
-const logger = AiLogger.makeYellowLogger();
-logger.withHeader({ header: "SlackSubscriber.respond", body: { type, roomName, itemName } });
-logger.trace("one", "two", "three", "four");
-logger.stringify({ body: lae });
-logger.tablize({ body: lae });
-
- class Logger {
-        private name: string;
-        private color: string;
-        private flick: boolean = true;
-
-        constructor({ name, color = Color.White }: LoggerConstructor) {
-            this.name = name;
-            this.color = color;
-        }
-
-        public toggle = (): void => {
-            this.flick = !this.flick;
-        }
-
-        public header = ({ header, color, isOn = true }: FunctionParams): void => {
-            if (this.flick && isOn) {
-                color = color || this.color;
-                console.group(color, `***[ ${header} ]******************`);
-            }
-        }
-
-        public withHeader = ({ header, body, color, isOn = true }: FunctionParams): void => {
-            if (this.flick && isOn) {
-                color = color || this.color;
-                this.header({ header, color, isOn });
-                this.stringnify({ body, color, isOn });
-            }
-        }
-
-        public stringnify = ({ body, color, isOn = true }: FunctionParams): void => {
-            if (this.flick && isOn) {
-                color = color || this.color;
-                console.log(color, JSON.stringify(body));
-                this.endGroup();
-            }
-        }
-
-        public tablize = ({ body, isOn = true }: FunctionParams): void => {
-            if (this.flick && isOn) {
-                console.table(JSON.parse(JSON.stringify(body)));
-                this.endGroup();
-            }
-        }
-
-        public trace = (...args: any[]): void => {
-            if (this.flick) {
-                this.header({ header: 'Tracing state' });
-                for (let arg of args) {
-                    console.log(this.color, arg)
-                }
-                this.endGroup();
-            }
-        }
-
-        private endGroup = (): void => {
-            _endGroup();
-        }
-
-        private blank = (): void => {
-            _blank();
-        }
-    }
-
-
-*/

@@ -1,20 +1,11 @@
 import * as R from 'ramda';
-import {
-    AiLogger as Console
-} from './util';
-import { Decorator } from './decorator'
+import { Decorator } from './decorator';
 
 import {
-    //Player,
     RequestContext,
-    RoomItem,
     RequestType,
     Subscriber,
 } from './types';
-
-import { Player } from './model';
-import { createNoSubstitutionTemplateLiteral } from 'typescript';
-
 
 export class SlackSubscriber implements Subscriber {
     private httpHandler: any;
@@ -22,7 +13,6 @@ export class SlackSubscriber implements Subscriber {
 
     constructor(httpHandler: any) {
         this.httpHandler = httpHandler;
-        // Console.green().log('HTTP handler!!', this.httpHandler, httpHandler);
         this.mapHandlers();
     }
 
@@ -37,7 +27,6 @@ export class SlackSubscriber implements Subscriber {
         this.handlerMap.set(RequestType.Verify, this.handleChallenge);
         this.handlerMap.set(RequestType.Ignore, () => 'No action');
     }
-
 
     public respond(requestCtx: RequestContext): void {
         const { type } = requestCtx;
@@ -72,48 +61,10 @@ export class SlackSubscriber implements Subscriber {
         this.sendReponse({ response, requestCtx });
     }
 
-
-    private handleStart = (requestCtx: RequestContext): any => {
-        let response = this.getCommonResponse(requestCtx);
-        response = Decorator.decorate({ response, requestCtx });
-        return this.sendReponse({ response, requestCtx });
-    }
-
-    private handlePickup = (requestCtx: RequestContext): any => {
-        // const { dungeon, roomName, itemName, user } = requestCtx;
-        // StateUtil.pickupItem(dungeon, user, roomName, itemName);
-        this.handleInteractiveComponent(requestCtx);
-    }
-
-    private handleInventory = (requestCtx: RequestContext): any => {
-        let response = this.getCommonResponse(requestCtx);
-        response = Decorator.decorate({ response, requestCtx });
-        this.sendReponse({ response, requestCtx });
-    }
-
-    /*
-
-
-  private handleInventory = (requestCtx: RequestContext): any => {
-      const { dungeon, user } = requestCtx;
-      const { inventory } = StateUtil.getPlayerState(dungeon, user);
-      //console.log("***handleInventory:", user, JSON.stringify(inventory));
-      Object.assign(requestCtx, { inventory });
-      let response = this.getCommonResponse(requestCtx);
-      response = ComponentDecorator.decorate({ response, requestCtx });
-      this.sendReponse({ response, requestCtx });
-  }
-
-  private handleDrop = (requestCtx: RequestContext): any => { }
-  private handleResume = (requestCtx: RequestContext): any => { }
-
-  */
     private sendReponse = ({ response, requestCtx }: any) => {
         const postActions = [RequestType.Chat, RequestType.Move, RequestType.Play, RequestType.Resume, RequestType.Start];
         const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
-        //console.log("Slack POST URL2:", url, JSON.stringify(response));
-        //Console.green().log('Slack POST URL123 909', url, JSON.stringify(response));
-        const res = (async () => {
+        (async () => {
             return await this.httpHandler({
                 method: 'POST',
                 url,
@@ -125,6 +76,5 @@ export class SlackSubscriber implements Subscriber {
                 body: response
             });
         })();
-        //console.log("isOK?", JSON.stringify(res));
     }
 }

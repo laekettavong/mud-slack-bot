@@ -1,21 +1,10 @@
 import * as R from 'ramda';
 import {
-  Dungeon,
   RequestContext,
   RequestType
 } from './types';
 
-import { DungeonMaster } from './master';
-
-import {
-  Item,
-  Player,
-  Room
-} from './model';
-
 import { AiLogger as Console } from './util';
-
-
 
 const caseHandleChallenge = (ctx: any, requestCtx: RequestContext): void => {
   // send back Slack 'challenge' token for endpoint verification
@@ -38,15 +27,15 @@ const caseHandleComponent = (ctx: any, requestCtx: RequestContext): void => {
      *  'team' -> some ID...maybe workspace ID?
      */
     const { user, channel, text, event_ts, team, client_msg_id } = event;
-    const tracer = { user, channel, text, event_ts, team, client_msg_id, event };
-    // Console.lightblue().log("AAA caseHandleComponent [1]", user, JSON.stringify(user), JSON.stringify(tracer));
+    //const tracer = { user, channel, text, event_ts, team, client_msg_id, event };
+    // Console.lightblue().log("caseHandleComponent [1]", user, JSON.stringify(user), JSON.stringify(tracer));
 
     const { dungeonMaster } = requestCtx;
     // at this point, user name is unknown...not given
     // game context provides current player and room state
     const gameCtx = dungeonMaster.getGameContext(user);
     const { player, room } = gameCtx;
-    // Console.lightblue().log("AAA caseHandleComponent [2]", JSON.stringify(gameCtx));
+    // Console.lightblue().log("caseHandleComponent [2]", JSON.stringify(gameCtx));
 
     Object.assign(requestCtx,
       {
@@ -91,13 +80,12 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
     // while others use 'value' as the name of action triggered
     const { name, value, text, action_ts } = actions[0];
 
-    const tracer = { name, value, text, action_ts, channel, team, user, response_url, message, acitons: actions[0] };
-    Console.yellow().log("BBB caseHandleUserMessage [1]", JSON.stringify(user), name, text, value, JSON.stringify(tracer));
+    //const tracer = { name, value, text, action_ts, channel, team, user, response_url, message, acitons: actions[0] };
+    //Console.yellow().log("caseHandleUserMessage [1]", JSON.stringify(user), name, text, value, JSON.stringify(tracer));
 
     const { dungeonMaster } = requestCtx;
     // in this context, 'user' contains 'id' and 'name' of (client) user
     const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
-    // Console.yellow().log("BBB handleUserMessage [2]", JSON.stringify({ player, room }));
 
     const playerId = user.id;
     const roomId = room.id
@@ -117,20 +105,18 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
       });
 
     if (/start/i.test(value)) {
-      const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
-      Console.yellow().log("BBB handleUserMessage [START]", JSON.stringify({ player, room }));
+      Console.yellow().log("handleUserMessage [START]", JSON.stringify({ player, room }));
       Object.assign(requestCtx, { type: RequestType.Start });
     }
 
     if (/resume/i.test(name)) {
-      const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
-      Console.yellow().log("BBB handleUserMessage [RESUME]", JSON.stringify({ player, room }));
+      Console.yellow().log("handleUserMessage [RESUME]", JSON.stringify({ player, room }));
       Object.assign(requestCtx, { type: RequestType.Move });
     }
 
     if (/inventory/i.test(name)) {
       const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
-      Console.yellow().log("BBB handleUserMessage [INVENTORY]", JSON.stringify({ player, room }));
+      Console.yellow().log("handleUserMessage [INVENTORY]", JSON.stringify({ player, room }));
       Object.assign(requestCtx, {
         type: RequestType.Inventory,
         player,
@@ -141,12 +127,12 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
     if (/move/i.test(name)) {
       dungeonMaster.enterRoom({ playerId, roomId: value });
       const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
-      Console.yellow().log("BBB handleUserMessage [MOVE]", JSON.stringify({ player, room }));
+      Console.yellow().log("handleUserMessage [MOVE]", JSON.stringify({ player, room }));
       Object.assign(requestCtx,
         {
           type: RequestType.Move,
           direction: name, // chosen direction
-          roomId: chosenId, // chosen room name
+          roomId: chosenId, // chosen room ID
           player,
           room
         });
@@ -155,20 +141,18 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
     if (text && /pickup/i.test(text.text)) {
       dungeonMaster.pickupItem({ playerId, roomId, itemId: chosenId });
       const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
-      Console.yellow().log("BBB handleUserMessage [PICKUP]", JSON.stringify({ player, room }));
+      Console.yellow().log("handleUserMessage [PICKUP]", JSON.stringify({ player, room }));
       Object.assign(requestCtx,
         {
           type: RequestType.Pickup,
-          roomId: message.text, // player.getCurrentRoomId() 
-          itemId: chosenId, //chosen item name,
+          roomId: message.text,
+          itemId: chosenId, //chosen item name
           player,
           room
         });
     }
-    //Console.yellow().stringify({ body: requestCtx });
   }
 }
-
 
 export const handleRequest = (ctx: any, dungeonMaster: any): RequestContext => {
   const { challenge } = ctx.request.body;

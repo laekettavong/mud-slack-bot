@@ -4,7 +4,7 @@ import bodyParser from 'koa-bodyparser';
 import rp from 'request-promise';
 import { SlackPublisher } from './broadcaster';
 import { SlackSubscriber } from './responder';
-import { handleRequest } from './request-context';
+import { handleRequest } from './context';
 import * as forsakenGoblin from './dungeon.json';
 import { DungeonMaster } from './master'
 require('dotenv').config()
@@ -33,10 +33,8 @@ router.get('/bot', async (ctx, next) => {
     const item2: Item = mudGame.getItemById("gold-4wtk1dtw2n9");
     mudGame.pickupItem({ playerId: player.getId(), roomId: room.getId(), itemId: item1.getId() });
     mudGame.pickupItem({ playerId: player.getId(), roomId: room.getId(), itemId: item2.getId() });
-    // mudGame.getPlayerJson("UFGEC4XNX");
-    // mudGame.getRoomJson("chamber-4pvk1dtqyk6")
     ctx.body = mudGame.getGameContext("UFGEC4XNX", "Lae")
-  } else{
+  } else {
     ctx.body = 'Welcome to the Underworld, prepare to...';
   }
 });

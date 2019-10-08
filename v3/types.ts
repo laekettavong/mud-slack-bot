@@ -5,8 +5,8 @@ export type Dungeon = {
     dungeonDesc: string;
     helpText: string;
     dungeonImg: string;
-    rooms: Array<DungeonRoomMetadata>; // Array<DungeonRoom>
-    players: Array<Player>;  //Array<Player>;
+    rooms: Array<DungeonRoomMetadata>;
+    players: Array<Player>;
 }
 
 export type DungeonRoomMetadata = {
@@ -55,22 +55,6 @@ export type Player = {
     inventory: Array<RoomItem>
 }
 
-export type RequestContextOLD = {
-    ctx: any;
-    type: RequestType;
-    user: string;
-    channel: string;
-    team: string
-    dungeon: any,
-    room: any,
-    item: string;
-    timestamp: string;
-    responseUrl: string;
-    challenge: string;
-    text: string;
-    inventory?: Array<RoomItem>;
-}
-
 export type RequestContext = {
     ctx: any;
     dungeonMaster: any;
@@ -85,18 +69,18 @@ export type RequestContext = {
     roomId?: string;
     itemId?: string;
     text?: string;
-    direction?: string; //TODO needit still? 
+    direction?: string;
 }
 
 export type PlayerRoomParam = {
-  playerId: string;
-  roomId: string;
+    playerId: string;
+    roomId: string;
 }
 
 export type PlayerRoomItemParam = {
-  playerId: string;
-  roomId: string;
-  itemId: string
+    playerId: string;
+    roomId: string;
+    itemId: string
 }
 
 /***[ Enums ]********/
@@ -132,4 +116,3 @@ export interface Subscribable {
     remove(id: string): boolean;
     notify(action: RequestContext): void;
 }
-
