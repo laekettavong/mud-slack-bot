@@ -177,7 +177,6 @@ export class Player {
       playerInventory.push(item);
     });
     const json = { ...this, gold, inventory: playerInventory };
-    Console.red().log(json, JSON.stringify(json));
     return json;
   }
 }
@@ -373,7 +372,7 @@ export class MudGame {
     player.pickupItem(item);
   }
 
-   public dropItem({ playerId, roomId, itemId }: PlayerRoomItemParam): void {
+  public dropItem({ playerId, roomId, itemId }: PlayerRoomItemParam): void {
     const player: Player = this.underworld.getPlayer(playerId);
     const room: Room = this.underworld.getRoom(roomId);
     const item: Item = this.underworld.getItem(itemId);
@@ -390,7 +389,7 @@ export class MudGame {
     return room.stringify();
   }
 
-  public getGameContext(playerId: string, playerName: string): any {
+  public getGameContext(playerId: string, playerName: string = 'Unknown'): any {
     const player: Player = this.underworld.findOrAddPlayer(playerId, playerName);
     const playerJson: any = this.getPlayerJson(playerId);
     const roomJson: any = this.getRoomJson(player.getCurrentRoomId());

@@ -21,14 +21,10 @@ export const Decorator = (() => {
     }
 
     const _decoratePlay = ({ response, requestCtx }: any): any => {
-        const { dungeonMaster, player } = requestCtx;
+        const { dungeonMaster } = requestCtx;
         const { underworld } = dungeonMaster;
         const { name, description, image, helpText } = underworld;
-        //const underworld = dungeonMaster.getUnderworld();
-        //const { dungeonName, dungeonDesc, dungeonImg, helpText } = underworld;
-        //Console.cyan().log('1_decoratePlay', JSON.stringify(underworld), JSON.stringify(player), name, description, image, helpText);
         Object.assign(response, { text: "Dungeon entrance, enter at your own risk" });
-        // add description/image
         const blocks: Array<any> = [
             {
                 "type": "section",
@@ -60,7 +56,7 @@ export const Decorator = (() => {
         const attachments: Array<any> = [
             {
                 text: "Let's go find some gold!",
-                callback_id: "myCallback", //TODO: callbackId from Slack
+                callback_id: "myCallback", //TODO: developer defined in Slack admin/config page, still not clear on purpose of this
                 color: "#C2061E",
                 attachment_type: "default",
                 actions: [{
@@ -73,21 +69,16 @@ export const Decorator = (() => {
             }
         ];
         Object.assign(response, { attachments });
-        //Console.cyan().log('2 _decoratePlay', JSON.stringify(response));
         return response;
     }
 
     const _decorateMove = ({ response, requestCtx }: any): any => {
-        // const { roomName, room, inventory } = requestCtx;
-
         const { dungeonMaster, player, room } = requestCtx;
         const { underworld } = dungeonMaster;
-       // const {id, name, desription, image} = room;
-        Console.cyan().log('1 _decorateMove', JSON.stringify(requestCtx), JSON.stringify(dungeonMaster), JSON.stringify(player));
-
-        /*
-        //console.log("ROOM", roomName, room)
-        Object.assign(response, { type: "mrkdwn", text: roomName });
+        const { id, name, description, image, directions, items } = room;
+        // const {id, name, desription, image} = room;
+        Console.cyan().log('CCC _decorateMove[1]', JSON.stringify(player), JSON.stringify(room), JSON.stringify(dungeonMaster));
+        Object.assign(response, { type: "mrkdwn", text: id });
 
         // add room description/image
         const blocks: Array<any> = [
@@ -96,16 +87,16 @@ export const Decorator = (() => {
                 type: "section",
                 text: {
                     type: "mrkdwn",
-                    text: `*_${room.roomName}_*\n${room.roomDesc}`
+                    text: `*_${name}_*\n${description}`
                 },
                 accessory: {
                     type: "image",
-                    image_url: `${room.roomImg}`,
+                    image_url: `${image}`,
                     alt_text: "Dungeon"
                 }
             }
         ];
-        const { items } = room;
+
         if (items.length > 0) {
             blocks.push(
                 {
@@ -121,12 +112,13 @@ export const Decorator = (() => {
             //blocks.push({ type: "divider" });
 
             for (let item of items) {
+                let { id, name, description, value, property } = item;
                 blocks.push(
                     {
                         type: "section",
                         text: {
                             type: "mrkdwn",
-                            text: `:moneybag: *_${item.itemName}_ (${item.itemValue} gold coins)*\n${item.itemDesc}`
+                            text: `:moneybag: *_${name}_ (${value} gold coins)*\n${description}`
                         },
                         accessory: {
                             type: "button",
@@ -135,7 +127,7 @@ export const Decorator = (() => {
                                 emoji: true,
                                 text: "pickup"
                             },
-                            "value": item.itemName
+                            "value": id
                         }
                     }
                 );
@@ -143,7 +135,6 @@ export const Decorator = (() => {
         }
         Object.assign(response, { blocks });
         // add navigation buttons
-        const { directions } = room;
         if (directions.length > 0) {
             let attachments = [
                 {
@@ -155,19 +146,28 @@ export const Decorator = (() => {
             ];
 
             let actions = [];
+            // for (let move of directions) {
+            //     let direction = Object.keys(move)[0];
+            //     let roomName = Object.values(move)[0]
+            //     actions.push({
+            //         name: "move",
+            //         type: "button",
+            //         action_id: direction,
+            //         text: DecoratorUtil.getNavigationLabel(direction),
+            //         value: roomName
+            //     })
+            // }
             for (let move of directions) {
-                let direction = Object.keys(move)[0];
-                let roomName = Object.values(move)[0]
                 actions.push({
                     name: "move",
                     type: "button",
-                    action_id: direction,
-                    text: DecoratorUtil.getNavigationLabel(direction),
-                    value: roomName
+                    action_id: move.direction,
+                    text: DecoratorUtil.getNavigationLabel(move.direction),
+                    value: move.id
                 })
             }
 
-            if (inventory.length > 0) {
+            if (player.inventory.length > 0) {
                 actions.push({
                     name: "inventory",
                     type: "button",
@@ -180,7 +180,6 @@ export const Decorator = (() => {
             Object.assign(attachments[0], { actions });
             Object.assign(response, { attachments });
         }
-        */
         return response;
     }
 
@@ -257,7 +256,7 @@ export const Decorator = (() => {
 
     const _decorate = ({ response, requestCtx }: any) => {
         const { type } = requestCtx;
-        Console.lightblue().withHeader({ header: 'Decorator#decorate', body: type })
+        //Console.lightblue().withHeader({ header: 'Decorator#decorate', body: type })
         if (type !== RequestType.Ignore) return _handlerMap.get(type)({ response, requestCtx });
     }
 
@@ -267,7 +266,12 @@ export const Decorator = (() => {
 
 })();
 
-export class ComponentDecorator {
+
+
+
+
+
+export class ComponentDecoratorDELETE {
 
 
     public static decorate({ response, requestCtx }: any) {

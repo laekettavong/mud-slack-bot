@@ -27,19 +27,26 @@ const caseHandleChallenge = (ctx: any, requestCtx: RequestContext): void => {
 
 const caseHandleComponent = (ctx: any, requestCtx: RequestContext): void => {
   const { event } = ctx.request.body;
-  if (event && event.client_msg_id) {
+  if (event && event.client_msg_id) { //user triggered event (as opposed to Slack triggered)
+    /*
+     * In this context:
+     *  'user' -> ID of (client) user that initiated the chat, at this time user name is not provided
+     *  'channel' -> ID of channel from where chat was initated
+     *  'text' -> user text message
+     *  'event_ts' -> timestamp of when message was sent, but also used asmessage ID for bot to reply to
+     *  'client_msg_id' -> message ID to signify the message was (client) user initiated and not Slack
+     *  'team' -> some ID...maybe workspace ID?
+     */
     const { user, channel, text, event_ts, team, client_msg_id } = event;
     const tracer = { user, channel, text, event_ts, team, client_msg_id, event };
-    //Console.yellow().withHeader({ header: 'Context#handleUserMessage', body: tracer });
-    const { dungeonMaster } = requestCtx;
-    // Console.yellow().log("handleUserMessage 1", JSON.stringify(requestCtx));
- 
+    // Console.lightblue().log("AAA caseHandleComponent [1]", user, JSON.stringify(user), JSON.stringify(tracer));
 
-    const player: Player = dungeonMaster.findOrAddPlayer(user);
-    const room: Room = dungeonMaster.getRoom(player.getCurrentRoomId());
-    const dirs = room.getDirections();
-    Console.yellow().log("handleUserMessage 1", JSON.stringify(player), JSON.stringify(room), dirs);
-  
+    const { dungeonMaster } = requestCtx;
+    // at this point, user name is unknown...not given
+    // game context provides current player and room state
+    const gameCtx = dungeonMaster.getGameContext(user);
+    const { player, room } = gameCtx;
+    // Console.lightblue().log("AAA caseHandleComponent [2]", JSON.stringify(gameCtx));
 
     Object.assign(requestCtx,
       {
@@ -67,13 +74,34 @@ const caseHandleComponent = (ctx: any, requestCtx: RequestContext): void => {
 const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
   const { event, payload } = ctx.request.body;
   if (!event && payload) {
+    /*
+     * In this context:
+     *  'actions' -> encapsulation of the action triggered by user interaction
+     *  'name' -> (developer defined in corresponding interactive compoenent) name of button pressed...not user's name
+     *  'value' -> (again, defined by developer) value of button pressed
+     *  'user' -> holds (client) user 'id' and 'name'
+     *  'channel' -> channel ID
+     *  'action_ts' -> timestamp of when action was triggered, used as component ID in conjuction with 'esponse_url'
+     *  'response_url' -> URL bound to the interactive component from where the action was triggered, it is used for "refreshing"
+     *                    the component - i.e. on button click, refresh/rerender component to include more/less text/widgets, etc
+     */
     const { actions, channel, team, user, response_url, message } = JSON.parse(payload);
+
+    // some components use 'name' to refer to the name of button pressed...not user's name
+    // while others use 'value' as the name of action triggered
     const { name, value, text, action_ts } = actions[0];
+
     const tracer = { name, value, text, action_ts, channel, team, user, response_url, message, acitons: actions[0] };
-    Console.yellow().withHeader({ header: 'Context#handleComponent', body: requestCtx })
+    Console.yellow().log("BBB caseHandleUserMessage [1]", JSON.stringify(user), name, text, value, JSON.stringify(tracer));
 
     const { dungeonMaster } = requestCtx;
-    const player: Player = dungeonMaster.getPlayer(user.id);
+    // in this context, 'user' contains 'id' and 'name' of (client) user
+    const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
+    // Console.yellow().log("BBB handleUserMessage [2]", JSON.stringify({ player, room }));
+
+    const playerId = user.id;
+    const roomId = room.id
+    const itemId = value;
 
     Object.assign(requestCtx,
       {
@@ -85,22 +113,30 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
         timestamp: action_ts,
         responseUrl: response_url,
         player,
-        roomId: player.getCurrentRoomId()
+        room
       });
 
     if (/start/i.test(value)) {
+      const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
+      Console.yellow().log("BBB handleUserMessage [START]", JSON.stringify({ player, room }));
       Object.assign(requestCtx, { type: RequestType.Start });
     }
 
     if (/resume/i.test(name)) {
+      const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
+      Console.yellow().log("BBB handleUserMessage [RESUME]", JSON.stringify({ player, room }));
       Object.assign(requestCtx, { type: RequestType.Move });
     }
 
     if (/inventory/i.test(name)) {
+      const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
+      Console.yellow().log("BBB handleUserMessage [INVENTORY]", JSON.stringify({ player, room }));
       Object.assign(requestCtx, { type: RequestType.Inventory });
     }
 
     if (/move/i.test(name)) {
+      const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
+      Console.yellow().log("BBB handleUserMessage [MOVE]", JSON.stringify({ player, room }));
       Object.assign(requestCtx,
         {
           type: RequestType.Move,
@@ -110,17 +146,21 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
     }
 
     if (text && /pickup/i.test(text.text)) {
+      dungeonMaster.pickupItem({ playerId, roomId, itemId });
+      const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
+      Console.yellow().log("BBB handleUserMessage [PICKUP]", JSON.stringify({ player, room }));
       Object.assign(requestCtx,
         {
           type: RequestType.Pickup,
           roomId: message.text, // player.getCurrentRoomId() 
-          itemId: value  //chosen item name
+          itemId: value, //chosen item name,
+          player,
+          room
         });
     }
-    Console.yellow().stringify({ body: requestCtx });
+    //Console.yellow().stringify({ body: requestCtx });
   }
 }
-
 
 
 export const handleRequest = (ctx: any, dungeonMaster: any): RequestContext => {
@@ -133,201 +173,3 @@ export const handleRequest = (ctx: any, dungeonMaster: any): RequestContext => {
   ctx.status = 200;
   return requestCtx;
 }
-
-
-
-/*
-
-export const handleRequestOLD = (ctx: any, forsakenGoblin: any): RequestContext => {
-  const { body } = ctx.request;
-  const { challenge, event, payload } = body;
-  //console.log("Entrance", bot_id, client_msg_id, JSON.stringify(payload), '\n');
-  //console.log("Entrance", JSON.stringify(ctx), '\n');
-
-
-  let requestCtx: RequestContext = {
-    ctx,
-    type: undefined,
-    user: '',
-    channel: '',
-    team: '',
-    dungeon: forsakenGoblin,
-    room: undefined,
-    roomName: '',
-    itemName: '',
-    timestamp: '',
-    responseUrl: '',
-    challenge: '',
-    text: ''
-  };
-
-  // send back Slack 'challenge' token for endpoint verification
-  if (challenge) {
-    Object.assign(requestCtx,
-      {
-        type: RequestType.Verify,
-        challenge
-      });
-  }
-
-  if (!event && payload) { // get user response from IC
-    //AiConsole.withHeader('Get user response from IC')
-    const { actions, channel, team, user, response_url, message } = JSON.parse(payload);
-    const { name, value, text, action_ts } = actions[0];
-    const lae = { user, name, value, text, action_ts, response_url, channel, team, actions: actions[0] };
-    //console.log(lae);
-    //console.log(JSON.stringify(JSON.parse(payload)));
-    console.table(JSON.stringify(lae));
-
-    Object.assign(requestCtx,
-      {
-        type: RequestType.Chat,
-        user: user.id,
-        channel,
-        team,
-        text,
-        dungeon: forsakenGoblin,
-        timestamp: action_ts,
-        responseUrl: response_url
-      });
-
-    if (/start/i.test(value)) {
-      Object.assign(requestCtx,
-        {
-          type: RequestType.Start,
-          channel: user.id,
-          user: user.id,
-          roomName: "The Entrance Hall", // chosen room name
-        });
-    }
-
-    if (/move/i.test(name)) {
-      Object.assign(requestCtx,
-        {
-          type: RequestType.Move,
-          channel: user.id,
-          user: user.id,
-          direction: name, // chosen direction
-          roomName: value, // chosen room name
-        });
-    }
-
-    if (/inventory/i.test(name)) {
-      Object.assign(requestCtx,
-        {
-          type: RequestType.Inventory,
-          channel: user.id,
-          user: user.id,
-        });
-    }
-
-    if (/resume/i.test(name)) {
-      Object.assign(requestCtx,
-        {
-          type: RequestType.Move,
-          channel: user.id,
-          user: user.id,
-        });
-    }
-    //console.log("LAE1", text, /pickup/i.test(text.text))
-    if (text && /pickup/i.test(text.text)) {
-      requestCtx = Object.assign(requestCtx,
-        {
-          type: RequestType.Pickup,
-          roomName: message.text,
-          itemName: value // chosen item name
-        });
-    }
-
-  }
-
-  if (event && event.client_msg_id) {
-    console.group("**Reply only to client message");
-    const { user, channel, text, event_ts, team, client_msg_id } = event;
-    const lae = { user, channel, text, event_ts, team, client_msg_id, event };
-    //console.log(JSON.stringify(lae));
-    //console.table(lae);
-
-    //console.log("\n\nXXX1 CHAT|PLAY ", user)
-
-    Object.assign(requestCtx,
-      {
-        type: RequestType.Ignore,
-        timestamp: event_ts,
-        user,
-        channel,
-        team,
-        text,
-        dungeon: forsakenGoblin,
-        roomName: "TODO",
-      });
-
-    // respond only to message from user
-    if (/play/i.test(text)) {
-      // send user game intro interactive component (IC)
-      Object.assign(requestCtx, {
-        type: RequestType.Play,
-        channel: user,
-        user,
-        roomName: "The Entrance Hall" // TODO randomize
-      });
-    } else {
-
-      // respond to user DM - i.e. '@mudbot ...'
-      // respond with 'Do you want to play a game...'
-      Object.assign(requestCtx, { type: RequestType.Chat });
-    }
-  }
-
-  ctx.status = 200;
-  return requestCtx;
-}
-*/
-
-/*
-export const RequestHandler = (() => {
-
-  return Object.freeze(
-    class RequestHandler {
-      public static handleRequest = (ctx: any, forsakenGoblin: any) => {
-        //const action =  name || value || text || text ||;
-
-      }
-
-    }
-  );
-})();
-*/
-
-/*
-
-class Decorate {
-    static one(msg){
-        console.log(`This is decorateOne: ${msg}`);
-        return 'This is one';
-    }
-
-    static two(msg){
-        console.log(`This is decorateTwo: ${msg}`);
-        return 'This is two';
-    }
-
-        static three(msg){
-        console.log(`This is decorateThree: ${msg}`);
-        return 'This is three';
-    }
-}
-
-    const map = new Map();
-    map.set('one', Decorate.one);
-    map.set('two', Decorate.two);
-    map.set('three', Decorate.three);
-
-const decorate = (type, msg) => {
-    const whichOne = map.get(type);
-    return whichOne(msg)
-}
-
-const foo = decorate('two', 'Hi, I\'m Lae.')
-console.log(foo)
-*/
