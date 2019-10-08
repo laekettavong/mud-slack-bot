@@ -131,7 +131,11 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
     if (/inventory/i.test(name)) {
       const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
       Console.yellow().log("BBB handleUserMessage [INVENTORY]", JSON.stringify({ player, room }));
-      Object.assign(requestCtx, { type: RequestType.Inventory });
+      Object.assign(requestCtx, {
+        type: RequestType.Inventory,
+        player,
+        room
+      });
     }
 
     if (/move/i.test(name)) {

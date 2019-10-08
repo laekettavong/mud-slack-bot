@@ -31,8 +31,8 @@ export class SlackSubscriber implements Subscriber {
         this.handlerMap.set(RequestType.Move, this.handleInteractiveComponent);
         this.handlerMap.set(RequestType.Play, this.handleInteractiveComponent);
         this.handlerMap.set(RequestType.Start, this.handleInteractiveComponent);
-        this.handlerMap.set(RequestType.Pickup, this.handlePickup);
-        // this.handlerMap.set(RequestType.Inventory, this.handleInventory);
+        this.handlerMap.set(RequestType.Pickup, this.handleInteractiveComponent);
+        this.handlerMap.set(RequestType.Inventory, this.handleInteractiveComponent);
         this.handlerMap.set(RequestType.Chat, this.handleChat);
         this.handlerMap.set(RequestType.Verify, this.handleChallenge);
         this.handlerMap.set(RequestType.Ignore, () => 'No action');
@@ -85,6 +85,11 @@ export class SlackSubscriber implements Subscriber {
         this.handleInteractiveComponent(requestCtx);
     }
 
+    private handleInventory = (requestCtx: RequestContext): any => {
+        let response = this.getCommonResponse(requestCtx);
+        response = Decorator.decorate({ response, requestCtx });
+        this.sendReponse({ response, requestCtx });
+    }
 
     /*
 

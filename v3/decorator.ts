@@ -74,7 +74,7 @@ export const Decorator = (() => {
 
     const _decorateMove = ({ response, requestCtx }: any): any => {
         const { dungeonMaster, player, room } = requestCtx;
-        const { underworld } = dungeonMaster;
+        //const { underworld } = dungeonMaster;
         const { id, name, description, image, directions, items } = room;
         // const {id, name, desription, image} = room;
         //Console.cyan().log('CCC _decorateMove[1]', JSON.stringify(player), JSON.stringify(room), JSON.stringify(dungeonMaster));
@@ -173,9 +173,9 @@ export const Decorator = (() => {
     }
 
     const _decorateInventory = ({ response, requestCtx }: any): any => {
-        const { roomName, room, user, inventory } = requestCtx;
-        console.log("decorateInventory", inventory)
-        Object.assign(response, { type: "mrkdwn", text: roomName });
+        //const { player } = requestCtx;
+        const { inventory, gold } = requestCtx.player;
+        Object.assign(response, { type: "mrkdwn", text: 'Inventory' });
         const blocks: Array<any> = [
             {
                 type: "section",
@@ -190,16 +190,14 @@ export const Decorator = (() => {
         ];
 
         if (inventory.length > 0) {
-            let gold = 0;
             for (let item of inventory) {
-
-                gold += +item.itemValue;
+                let { id, name, description, value, property } = item;
                 blocks.push(
                     {
                         type: "section",
                         text: {
                             type: "mrkdwn",
-                            text: `:moneybag: *_${item.itemName} (x${item.itemValue})_*: ${item.itemDesc}`
+                            text: `:moneybag: *_${name} (x${value} gold coins)_*: ${description}`
                         }
                     });
             }
@@ -209,7 +207,7 @@ export const Decorator = (() => {
                     type: "section",
                     text: {
                         type: "mrkdwn",
-                        text: `:moneybag: *_ x ${gold}_*`
+                        text: `:moneybag: *_ x ${gold} gold coins_*`
                     }
                 });
         }
@@ -228,7 +226,6 @@ export const Decorator = (() => {
             }]
         }];
         Object.assign(response, { attachments });
-        console.log("\***decorateInventory", JSON.stringify(response))
         return response;
     }
 
