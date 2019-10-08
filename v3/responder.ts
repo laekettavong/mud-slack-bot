@@ -41,7 +41,6 @@ export class SlackSubscriber implements Subscriber {
 
     public respond(requestCtx: RequestContext): void {
         const { type } = requestCtx;
-        //Console.red().withHeader({ header: 'Handler#respond', body: type })
         if (type !== RequestType.Ignore) this.handlerMap.get(type)(requestCtx);
     }
 
@@ -56,13 +55,8 @@ export class SlackSubscriber implements Subscriber {
     }
 
     private handleInteractiveComponent = (requestCtx: RequestContext): void => {
-        const { player } = requestCtx;
-        //Console.green().log('handleInteractiveComponent', requestCtx.type)
-        // {"id":"UFGEC4XNX","startRoomId":"chamber-4pvk1dtqyk7","currentRoomId":"chamber-4pvk1dtqyk7","killCount":0,"inventory":{}}
         let response = this.getCommonResponse(requestCtx);
         response = Decorator.decorate({ response, requestCtx });
-        //response = ComponentDecorator.decorate({ response, requestCtx });
-        Console.green().log('Response', response)
         this.sendReponse({ response, requestCtx });
     }
 

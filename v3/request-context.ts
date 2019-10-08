@@ -101,11 +101,11 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
 
     const playerId = user.id;
     const roomId = room.id
-    const itemId = value;
+    const chosenId = value;
 
     Object.assign(requestCtx,
       {
-        type: RequestType.Chat,
+        //type: RequestType.Chat,
         channel: user.id,
         user: user.id,
         team,
@@ -135,25 +135,28 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
     }
 
     if (/move/i.test(name)) {
+      dungeonMaster.enterRoom({ playerId, roomId: value });
       const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
       Console.yellow().log("BBB handleUserMessage [MOVE]", JSON.stringify({ player, room }));
       Object.assign(requestCtx,
         {
           type: RequestType.Move,
           direction: name, // chosen direction
-          roomId: value, // chosen room name
+          roomId: chosenId, // chosen room name
+          player,
+          room
         });
     }
 
     if (text && /pickup/i.test(text.text)) {
-      dungeonMaster.pickupItem({ playerId, roomId, itemId });
+      dungeonMaster.pickupItem({ playerId, roomId, itemId: chosenId });
       const { player, room } = dungeonMaster.getGameContext(user.id, user.name);
       Console.yellow().log("BBB handleUserMessage [PICKUP]", JSON.stringify({ player, room }));
       Object.assign(requestCtx,
         {
           type: RequestType.Pickup,
           roomId: message.text, // player.getCurrentRoomId() 
-          itemId: value, //chosen item name,
+          itemId: chosenId, //chosen item name,
           player,
           room
         });

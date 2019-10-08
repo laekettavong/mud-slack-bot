@@ -77,7 +77,7 @@ export const Decorator = (() => {
         const { underworld } = dungeonMaster;
         const { id, name, description, image, directions, items } = room;
         // const {id, name, desription, image} = room;
-        Console.cyan().log('CCC _decorateMove[1]', JSON.stringify(player), JSON.stringify(room), JSON.stringify(dungeonMaster));
+        //Console.cyan().log('CCC _decorateMove[1]', JSON.stringify(player), JSON.stringify(room), JSON.stringify(dungeonMaster));
         Object.assign(response, { type: "mrkdwn", text: id });
 
         // add room description/image
@@ -146,17 +146,6 @@ export const Decorator = (() => {
             ];
 
             let actions = [];
-            // for (let move of directions) {
-            //     let direction = Object.keys(move)[0];
-            //     let roomName = Object.values(move)[0]
-            //     actions.push({
-            //         name: "move",
-            //         type: "button",
-            //         action_id: direction,
-            //         text: DecoratorUtil.getNavigationLabel(direction),
-            //         value: roomName
-            //     })
-            // }
             for (let move of directions) {
                 actions.push({
                     name: "move",

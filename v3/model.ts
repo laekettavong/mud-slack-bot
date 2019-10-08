@@ -107,19 +107,11 @@ export class Room {
   }
 
   public stringify(): any {
-    const roomDirs: any[] = [];
-    this.directions.forEach((value: string, key: string) => {
-      roomDirs.push({ direction: key, id: this.getId(), name: value });
-    });
-
     const roomItems: any[] = [];
     this.items.forEach((value: Item, key: string) => {
       roomItems.push(value);
     });
-
-    const json = { ...this, directions: roomDirs, items: roomItems }
-    //Console.green().log(JSON.stringify(json));
-    return json;
+    return { ...this, items: roomItems };
   }
 }
 
@@ -266,7 +258,6 @@ export class Underworld {
       const roomId = Array.from(this.allRooms.keys())[indx];
       const player = new Player(playerId, playerName, roomId)
       this.allPlayers.set(playerId, player);
-      //Console.cyan().log('NEW Player', indx, roomId, player.stringify(), JSON.stringify(player));
       return player;
     } else {
       const player: Player = this.allPlayers.get(playerId);
@@ -299,7 +290,6 @@ export const UnderworldSingleton = (() => {
   }
 })();
 
-
 export class MudGame {
   private underworld: Underworld;
 
@@ -331,16 +321,6 @@ export class MudGame {
     return this.underworld.getItem(itemId);
   }
 
-
-  public pickupItemX(room: Room, player: Player, item: Item): void {
-    room.removeItem(item);
-    player.pickupItem(item);
-  }
-
-  public dropItemX(room: Room, player: Player, item: Item): void {
-    room.addItem(item);
-    player.dropItem(item);
-  }
 
   public getDirections(roomId: string): any[] {
     const room: Room = this.underworld.getRoom(roomId);
@@ -384,9 +364,15 @@ export class MudGame {
     const player: Player = this.underworld.getPlayer(playerId);
     return player.stringify();
   }
+
   public getRoomJson(roomId: string): any {
     const room: Room = this.underworld.getRoom(roomId);
-    return room.stringify();
+    const dirsMap: Map<string, string> = room.getDirections();
+    const roomDirs: any[] = [];
+    dirsMap.forEach((value: string, key: string) => {
+      roomDirs.push({ direction: key, id: this.underworld.getRoomId(value), name: value });
+    });
+    return { ...room.stringify(), directions: roomDirs };
   }
 
   public getGameContext(playerId: string, playerName: string = 'Unknown'): any {
