@@ -261,7 +261,7 @@ export class Underworld {
     } else {
       const player: Player = this.allPlayers.get(playerId);
       if (playerName) {
-        // depending on Slack event, user name maynot be available during player creation
+        // depending on Slack event, user name is unavailable during player creation
         player.setName(playerName);
       }
       return player;
@@ -296,16 +296,8 @@ export class MudGame {
     this.underworld = UnderworldSingleton.getInstance(dungeon);
   }
 
-  public findOrAddPlayer(playerId: string, playerName: string): Player {
+  public findOrAddPlayer(playerId: string, playerName: string = 'Unknown'): Player {
     return this.underworld.findOrAddPlayer(playerId, playerName);
-  }
-
-  public getCurrentRoom(player: Player): Room {
-    return this.underworld.getRoom(player.getCurrentRoomId());
-  }
-
-  public getCurrentById(roomId: string): Room {
-    return this.underworld.getRoom(roomId);
   }
 
   public getPlayerById(playerId: string): Player {

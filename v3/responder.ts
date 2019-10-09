@@ -36,7 +36,7 @@ export class SlackSubscriber implements Subscriber {
     private getCommonResponse = (requestCtx: RequestContext): any => {
         const { timestamp, player } = requestCtx;
         return {
-            channel: player.id, //using user for direct messaging, else use channel id from requestCtx
+            channel: player.id, //for direct user messaging, use userID else use channel ID from requestCtx
             as_user: true,
             callback_id: "myCallback",
             ts: timestamp
@@ -63,18 +63,20 @@ export class SlackSubscriber implements Subscriber {
 
     private sendReponse = ({ response, requestCtx }: any) => {
         const postActions = [RequestType.Chat, RequestType.Move, RequestType.Play, RequestType.Resume, RequestType.Start];
+        // 'chat.postMessage' creates new post in chat thread
+        // 'responseUrl' re-renders current post with new content (text, widgests, images, etc.)
         const url = R.includes(requestCtx.type, postActions) ? 'https://slack.com/api/chat.postMessage' : requestCtx.responseUrl;
         (async () => {
-            return await this.httpHandler({
-                method: 'POST',
-                url,
-                headers: {
-                    'Authorization': `Bearer ${process.env.SLACK_BOT_USER_OAUTH_TOKEN}`,
-                    'Content-type': 'application/json; charset=utf-8'
-                },
-                json: true,
-                body: response
-            });
+          await this.httpHandler({
+            method: 'POST',
+            url,
+            headers: {
+                'Authorization': `Bearer ${process.env.SLACK_BOT_USER_OAUTH_TOKEN}`, //defined in '.env' file
+                'Content-type': 'application/json; charset=utf-8'
+            },
+            json: true,
+            body: response
+          });
         })();
     }
 }

@@ -1,5 +1,4 @@
 const uuidv4 = require('uuid/v4')
-
 import {
     RequestContext,
     Subscriber,
@@ -24,4 +23,3 @@ export class SlackPublisher implements Subscribable {
         }
     }
 }
-

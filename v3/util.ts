@@ -12,7 +12,7 @@ import {
     Player
 } from './types'
 
-//Let's explore ramda
+// StatUtil deprecated...just dabbling with ramda
 export class StateUtil {
 
     public static getRoomDirections = (room: DungeonRoom): any => {
@@ -70,43 +70,6 @@ export class StateUtil {
             }
         }
     }
-
-    public static getPlayerState = (dungeon: Dungeon, playerId: string): Player => {
-        const { players } = dungeon;
-        let player: Player = null;
-        for (let indx in players) {
-            if (players[indx].id === playerId) {
-                player = players[indx];
-                break;
-            }
-        }
-        return player;
-    }
-
-    public static setPlayerState = (dungeon: Dungeon, currentRoom: string, playerId: string, roomItem: RoomItem): void => {
-        const player: Player = StateUtil.getPlayerState(dungeon, playerId);
-        if (player) {
-            player.gold += +roomItem.itemValue;
-            player.currentRoom = currentRoom;
-            player.inventory.push(roomItem);
-        } else {
-            dungeon.players.push({
-                id: playerId,
-                gold: +roomItem.itemValue,
-                startRoom: currentRoom,
-                currentRoom,
-                inventory: [roomItem]
-            })
-        }
-    }
-
-    public static pickupItem = (dungeon: Dungeon, playerId: string, roomName: string, itemName: string) => {
-        const roomItems = StateUtil.getRoomItems(dungeon, roomName);
-        const roomItem: RoomItem = StateUtil.getItem(roomItems, itemName);
-        StateUtil.removeRoomItem(dungeon, roomName, itemName);
-        StateUtil.setPlayerState(dungeon, roomName, playerId, roomItem);
-        console.log("\nPlayer stats:", dungeon.players)
-    }
 }
 
 export class DecoratorUtil {
@@ -130,7 +93,7 @@ export class DecoratorUtil {
     }
 }
 
-//TODO: make open source, add to NPM 'Ai' utility class collection
+//TODO: refine, make open source, add to NPM 'Ai' utility class collection
 export const AiLogger = (() => {
 
     type LoggerConstructor = {

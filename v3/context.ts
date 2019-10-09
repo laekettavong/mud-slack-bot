@@ -93,7 +93,6 @@ const caseHandleUserMessage = (ctx: any, requestCtx: RequestContext): void => {
 
     Object.assign(requestCtx,
       {
-        //type: RequestType.Chat,
         channel: user.id,
         user: user.id,
         team,

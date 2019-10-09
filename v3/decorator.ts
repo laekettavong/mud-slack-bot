@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+//import * as R from 'ramda';
 import {
     DecoratorUtil,
     AiLogger as Console,
@@ -23,50 +23,50 @@ export const Decorator = (() => {
         const { name, description, image, helpText } = underworld;
         Object.assign(response, { text: "Dungeon entrance, enter at your own risk" });
         const blocks: Array<any> = [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": `*${name}* ${description}`
-                }
-            },
-            {
-                "type": "image",
-                "title": {
-                    "type": "plain_text",
-                    "text": "Dungeon",
-                    "emoji": true
-                },
-                "image_url": `${image}`,
-                "alt_text": "Dungeon"
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": `${helpText}`
-                }
-            }
-        ];
-        Object.assign(response, { blocks });
-        // add 'Start' button
-        const attachments: Array<any> = [
-            {
-                text: "Let's go find some gold!",
-                callback_id: "myCallback", //TODO: developer defined in Slack admin/config page, still not clear on purpose of this
-                color: "#C2061E",
-                attachment_type: "default",
-                actions: [{
-                    name: "start",
-                    type: "button",
-                    action_id: "start",
-                    text: "Start",
-                    value: "start"
-                }]
-            }
-        ];
-        Object.assign(response, { attachments });
-        return response;
+          {
+              "type": "section",
+              "text": {
+                  "type": "mrkdwn",
+                  "text": `*${name}* ${description}`
+              }
+          },
+          {
+              "type": "image",
+              "title": {
+                  "type": "plain_text",
+                  "text": "Dungeon",
+                  "emoji": true
+              },
+              "image_url": `${image}`,
+              "alt_text": "Dungeon"
+          },
+          {
+              "type": "section",
+              "text": {
+                  "type": "mrkdwn",
+                  "text": `${helpText}`
+              }
+          }
+      ];
+      Object.assign(response, { blocks });
+      // add 'Start' button
+      const attachments: Array<any> = [
+          {
+              text: "Let's go find some gold!",
+              callback_id: "myCallback", //TODO: developer defined in Slack admin/config page, still not clear on purpose of this
+              color: "#C2061E",
+              attachment_type: "default",
+              actions: [{
+                  name: "start",
+                  type: "button",
+                  action_id: "start",
+                  text: "Start",
+                  value: "start"
+              }]
+          }
+      ];
+      Object.assign(response, { attachments });
+      return response;
     }
 
     const _decorateMove = ({ response, requestCtx }: any): any => {
@@ -204,6 +204,7 @@ export const Decorator = (() => {
                     }
                 });
         }
+
         Object.assign(response, { blocks });
         const attachments: Array<any> = [{
             text: "Let's continue playing!",
@@ -218,6 +219,7 @@ export const Decorator = (() => {
                 value: "resume"
             }]
         }];
+
         Object.assign(response, { attachments });
         return response;
     }
@@ -240,5 +242,4 @@ export const Decorator = (() => {
     return {
         decorate: _decorate
     }
-
 })();
