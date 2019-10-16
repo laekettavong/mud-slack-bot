@@ -4,12 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start-devxx": "nodemon ./src/app.ts",
-    "start-v2": "nodemon --watch 'v2/**/*' -e ts --exec ts-node ./v2/app.ts",
-    "start-v3": "nodemon --watch 'v3/**/*' -e ts --exec ts-node ./v3/app.ts",
-    "start": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./src/app.ts",
-    "start-dev": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./v2/ramda3.ts",
-    "start-man": "nodemon --watch 'v2/**/*' -e ts --exec ts-node ./v2/manager.ts"
+    "start": "nodemon --watch 'src/**/*' -e ts --exec ts-node ./src/app.ts"
   },
   "keywords": [],
   "author": "",
