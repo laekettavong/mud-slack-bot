@@ -12,5 +12,5 @@ Principles/design patterns: SOLID, OOP, Factory, Facade, Observer, Singleton, De
 <img src="images/mock2.png" width="1000">
 
 ### Steps to configure Slack for the app
-[configuration doc](docs/slack-api-setup.js)
+[configuration doc](docs/slack-api-setup.pdf)
 
